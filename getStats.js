@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2019-02-20 3:31:29 PM UTC
+// Last time updated: 2020-05-28 7:31:35 AM UTC
 
 // _______________
 // getStats v1.2.0
@@ -31,7 +31,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
 
         global.navigator = {
             userAgent: browserFakeUserAgent,
-            getUserMedia: function() {}
+            getUserMedia: function() {},
         };
 
         if (!global.console) {
@@ -39,9 +39,11 @@ var getStats = function(mediaStreamTrack, callback, interval) {
         }
 
         if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
-            global.console.error = global.console.log = global.console.log || function() {
-                console.log(arguments);
-            };
+            global.console.error = global.console.log =
+                global.console.log ||
+                function() {
+                    console.log(arguments);
+                };
         }
 
         if (typeof document === 'undefined') {
@@ -50,8 +52,8 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 documentElement: {
                     appendChild: function() {
                         return '';
-                    }
-                }
+                    },
+                },
             };
 
             document.createElement = document.captureStream = document.mozCaptureStream = function() {
@@ -64,7 +66,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                     drawImage: function() {},
                     toDataURL: function() {
                         return '';
-                    }
+                    },
                 };
                 return obj;
             };
@@ -77,7 +79,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             that.location = {
                 protocol: 'file:',
                 href: '',
-                hash: ''
+                hash: '',
             };
         }
 
@@ -85,7 +87,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             /*global screen:true */
             that.screen = {
                 width: 0,
-                height: 0
+                height: 0,
             };
         }
 
@@ -97,7 +99,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 },
                 revokeObjectURL: function() {
                     return '';
-                }
+                },
             };
         }
 
@@ -132,7 +134,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 availableBandwidth: 0,
                 streams: 0,
                 framerateMean: 0,
-                bitrateMean: 0
+                bitrateMean: 0,
             },
             recv: {
                 tracks: [],
@@ -140,12 +142,12 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 availableBandwidth: 0,
                 streams: 0,
                 framerateMean: 0,
-                bitrateMean: 0
+                bitrateMean: 0,
             },
             bytesSent: 0,
             bytesReceived: 0,
             latency: 0,
-            packetsLost: 0
+            packetsLost: 0,
         },
         video: {
             send: {
@@ -154,7 +156,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 availableBandwidth: 0,
                 streams: 0,
                 framerateMean: 0,
-                bitrateMean: 0
+                bitrateMean: 0,
             },
             recv: {
                 tracks: [],
@@ -162,12 +164,12 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 availableBandwidth: 0,
                 streams: 0,
                 framerateMean: 0,
-                bitrateMean: 0
+                bitrateMean: 0,
             },
             bytesSent: 0,
             bytesReceived: 0,
             latency: 0,
-            packetsLost: 0
+            packetsLost: 0,
         },
         bandwidth: {
             systemBandwidth: 0,
@@ -175,9 +177,9 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             encodedPerSecond: 0,
             helper: {
                 audioBytesSent: 0,
-                videoBytestSent: 0
+                videoBytestSent: 0,
             },
-            speed: 0
+            speed: 0,
         },
         results: {},
         connectionType: {
@@ -187,39 +189,39 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 candidateType: [],
                 transport: [],
                 ipAddress: [],
-                networkType: []
+                networkType: [],
             },
             remote: {
                 candidateType: [],
                 transport: [],
                 ipAddress: [],
-                networkType: []
-            }
+                networkType: [],
+            },
         },
         resolutions: {
             send: {
                 width: 0,
-                height: 0
+                height: 0,
             },
             recv: {
                 width: 0,
-                height: 0
-            }
+                height: 0,
+            },
         },
         internal: {
             audio: {
                 send: {},
-                recv: {}
+                recv: {},
             },
             video: {
                 send: {},
-                recv: {}
+                recv: {},
             },
-            candidates: {}
+            candidates: {},
         },
         nomore: function() {
             nomore = true;
-        }
+        },
     };
 
     var getStatsParser = {
@@ -227,7 +229,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             if (result.type === 'googLibjingleSession') {
                 getStatsResult.isOfferer = result.googInitiator;
             }
-        }
+        },
     };
 
     var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -284,7 +286,10 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             getStatsResult.results = results;
 
             if (getStatsResult.audio && getStatsResult.video) {
-                getStatsResult.bandwidth.speed = (getStatsResult.audio.bytesSent - getStatsResult.bandwidth.helper.audioBytesSent) + (getStatsResult.video.bytesSent - getStatsResult.bandwidth.helper.videoBytesSent);
+                getStatsResult.bandwidth.speed =
+                    getStatsResult.audio.bytesSent -
+                    getStatsResult.bandwidth.helper.audioBytesSent +
+                    (getStatsResult.video.bytesSent - getStatsResult.bandwidth.helper.videoBytesSent);
                 getStatsResult.bandwidth.helper.audioBytesSent = getStatsResult.audio.bytesSent;
                 getStatsResult.bandwidth.helper.videoBytesSent = getStatsResult.video.bytesSent;
             }
@@ -303,14 +308,18 @@ var getStats = function(mediaStreamTrack, callback, interval) {
     function getStatsWrapper(cb) {
         // if !peer or peer.signalingState == 'closed' then return;
 
-        if (typeof window.InstallTrigger !== 'undefined' || isSafari) { // maybe "isEdge?"
-            peer.getStats(window.mediaStreamTrack || null).then(function(res) {
-                var items = [];
-                res.forEach(function(r) {
-                    items.push(r);
-                });
-                cb(items);
-            }).catch(cb);
+        if (typeof window.InstallTrigger !== 'undefined' || isSafari) {
+            // maybe "isEdge?"
+            peer
+                .getStats(window.mediaStreamTrack || null)
+                .then(function(res) {
+                    var items = [];
+                    res.forEach(function(r) {
+                        items.push(r);
+                    });
+                    cb(items);
+                })
+                .catch(cb);
         } else {
             peer.getStats(function(res) {
                 var items = [];
@@ -327,14 +336,14 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 cb(items);
             });
         }
-    };
+    }
 
     getStatsParser.datachannel = function(result) {
         if (result.type !== 'datachannel') return;
 
         getStatsResult.datachannel = {
-            state: result.state // open or connecting
-        }
+            state: result.state, // open or connecting
+        };
     };
 
     getStatsParser.googCertificate = function(result) {
@@ -575,7 +584,13 @@ var getStats = function(mediaStreamTrack, callback, interval) {
     };
 
     getStatsParser.candidatePair = function(result) {
-        if (result.type !== 'googCandidatePair' && result.type !== 'candidate-pair' && result.type !== 'local-candidate' && result.type !== 'remote-candidate') return;
+        if (
+            result.type !== 'googCandidatePair' &&
+            result.type !== 'candidate-pair' &&
+            result.type !== 'local-candidate' &&
+            result.type !== 'remote-candidate'
+        )
+            return;
 
         // result.googActiveConnection means either STUN or TURN is used.
 
@@ -758,7 +773,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             transport: LOCAL_transport[result.id],
             timestamp: result.timestamp,
             id: result.id,
-            type: result.type
+            type: result.type,
         };
 
         getStatsResult.connectionType.local.candidateType = LOCAL_candidateType[result.id];
@@ -817,7 +832,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             transport: REMOTE_transport[result.id],
             timestamp: result.timestamp,
             id: result.id,
-            type: result.type
+            type: result.type,
         };
 
         getStatsResult.connectionType.remote.candidateType = REMOTE_candidateType[result.id];
@@ -933,12 +948,12 @@ var getStats = function(mediaStreamTrack, callback, interval) {
     var SSRC = {
         audio: {
             send: [],
-            recv: []
+            recv: [],
         },
         video: {
             send: [],
-            recv: []
-        }
+            recv: [],
+        },
     };
 
     getStatsParser.ssrc = function(result) {
@@ -947,7 +962,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
         var sendrecvType = result.id.split('_').pop();
 
         if (SSRC[result.mediaType][sendrecvType].indexOf(result.ssrc) === -1) {
-            SSRC[result.mediaType][sendrecvType].push(result.ssrc)
+            SSRC[result.mediaType][sendrecvType].push(result.ssrc);
         }
 
         getStatsResult[result.mediaType][sendrecvType].streams = SSRC[result.mediaType][sendrecvType].length;

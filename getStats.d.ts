@@ -78,9 +78,5 @@ declare module 'getstats' {
     nomore: () => void;
   }
 
-  export default function getstats(
-      rtc: RTCPeerConnection,
-      callback: (result: GetStatsResult) => void,
-      interval?: number
-  ): void;
+  export default function getstats(rtc: RTCPeerConnection, callback: (result: GetStatsResult) => void, interval?: number): void;
 }

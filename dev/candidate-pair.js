@@ -1,5 +1,11 @@
 getStatsParser.candidatePair = function(result) {
-    if (result.type !== 'googCandidatePair' && result.type !== 'candidate-pair' && result.type !== 'local-candidate' && result.type !== 'remote-candidate') return;
+    if (
+        result.type !== 'googCandidatePair' &&
+        result.type !== 'candidate-pair' &&
+        result.type !== 'local-candidate' &&
+        result.type !== 'remote-candidate'
+    )
+        return;
 
     // result.googActiveConnection means either STUN or TURN is used.
 

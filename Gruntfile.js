@@ -4,12 +4,12 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt, {
         pattern: 'grunt-*',
         config: 'package.json',
-        scope: 'devDependencies'
+        scope: 'devDependencies',
     });
 
     var versionNumber = grunt.file.readJSON('package.json').version;
 
-    var banner = '\'use strict\';\n\n';
+    var banner = "'use strict';\n\n";
 
     banner += '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
 
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 separator: '\n',
-                banner: banner
+                banner: banner,
             },
             dist: {
                 src: [
@@ -54,7 +54,7 @@ module.exports = function(grunt) {
                     'dev/outbound-rtp.js',
                     'dev/track.js',
                     'dev/ssrc.js',
-                    'dev/tail.js'
+                    'dev/tail.js',
                 ],
                 dest: 'getStats.js',
             },
@@ -62,23 +62,23 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 mangle: false,
-                banner: banner
+                banner: banner,
             },
             my_target: {
                 files: {
-                    'getStats.min.js': ['getStats.js']
-                }
-            }
+                    'getStats.min.js': ['getStats.js'],
+                },
+            },
         },
         jsbeautifier: {
             files: ['getStats.js', 'dev/*.js', 'server.js', 'Gruntfile.js'],
             options: {
                 js: {
-                    braceStyle: "collapse",
+                    braceStyle: 'collapse',
                     breakChainedMethods: false,
                     e4x: false,
                     evalCode: false,
-                    indentChar: " ",
+                    indentChar: ' ',
                     indentLevel: 0,
                     indentSize: 4,
                     indentWithTabs: false,
@@ -90,23 +90,23 @@ module.exports = function(grunt) {
                     spaceBeforeConditional: true,
                     spaceInParen: false,
                     unescapeStrings: false,
-                    wrapLineLength: 0
+                    wrapLineLength: 0,
                 },
                 html: {
-                    braceStyle: "collapse",
-                    indentChar: " ",
-                    indentScripts: "keep",
+                    braceStyle: 'collapse',
+                    indentChar: ' ',
+                    indentScripts: 'keep',
                     indentSize: 4,
                     maxPreserveNewlines: 10,
                     preserveNewlines: true,
-                    unformatted: ["a", "sub", "sup", "b", "i", "u"],
-                    wrapLineLength: 0
+                    unformatted: ['a', 'sub', 'sup', 'b', 'i', 'u'],
+                    wrapLineLength: 0,
                 },
                 css: {
-                    indentChar: " ",
-                    indentSize: 4
-                }
-            }
+                    indentChar: ' ',
+                    indentSize: 4,
+                },
+            },
         },
         bump: {
             options: {
@@ -120,8 +120,8 @@ module.exports = function(grunt) {
                 tagMessage: '%VERSION%',
                 push: false,
                 pushTo: 'upstream',
-                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
-            }
+                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
+            },
         },
         watch: {
             scripts: {
@@ -130,8 +130,8 @@ module.exports = function(grunt) {
                 options: {
                     spawn: false,
                 },
-            }
-        }
+            },
+        },
     });
 
     // enable plugins

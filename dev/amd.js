@@ -15,7 +15,7 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
 
     global.navigator = {
         userAgent: browserFakeUserAgent,
-        getUserMedia: function() {}
+        getUserMedia: function() {},
     };
 
     if (!global.console) {
@@ -23,9 +23,11 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
     }
 
     if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
-        global.console.error = global.console.log = global.console.log || function() {
-            console.log(arguments);
-        };
+        global.console.error = global.console.log =
+            global.console.log ||
+            function() {
+                console.log(arguments);
+            };
     }
 
     if (typeof document === 'undefined') {
@@ -34,8 +36,8 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
             documentElement: {
                 appendChild: function() {
                     return '';
-                }
-            }
+                },
+            },
         };
 
         document.createElement = document.captureStream = document.mozCaptureStream = function() {
@@ -48,7 +50,7 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
                 drawImage: function() {},
                 toDataURL: function() {
                     return '';
-                }
+                },
             };
             return obj;
         };
@@ -61,7 +63,7 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
         that.location = {
             protocol: 'file:',
             href: '',
-            hash: ''
+            hash: '',
         };
     }
 
@@ -69,7 +71,7 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
         /*global screen:true */
         that.screen = {
             width: 0,
-            height: 0
+            height: 0,
         };
     }
 
@@ -81,7 +83,7 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
             },
             revokeObjectURL: function() {
                 return '';
-            }
+            },
         };
     }
 

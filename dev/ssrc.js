@@ -1,12 +1,12 @@
 var SSRC = {
     audio: {
         send: [],
-        recv: []
+        recv: [],
     },
     video: {
         send: [],
-        recv: []
-    }
+        recv: [],
+    },
 };
 
 getStatsParser.ssrc = function(result) {
@@ -15,7 +15,7 @@ getStatsParser.ssrc = function(result) {
     var sendrecvType = result.id.split('_').pop();
 
     if (SSRC[result.mediaType][sendrecvType].indexOf(result.ssrc) === -1) {
-        SSRC[result.mediaType][sendrecvType].push(result.ssrc)
+        SSRC[result.mediaType][sendrecvType].push(result.ssrc);
     }
 
     getStatsResult[result.mediaType][sendrecvType].streams = SSRC[result.mediaType][sendrecvType].length;

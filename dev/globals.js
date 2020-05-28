@@ -15,7 +15,7 @@ var getStatsResult = {
             availableBandwidth: 0,
             streams: 0,
             framerateMean: 0,
-            bitrateMean: 0
+            bitrateMean: 0,
         },
         recv: {
             tracks: [],
@@ -23,12 +23,12 @@ var getStatsResult = {
             availableBandwidth: 0,
             streams: 0,
             framerateMean: 0,
-            bitrateMean: 0
+            bitrateMean: 0,
         },
         bytesSent: 0,
         bytesReceived: 0,
         latency: 0,
-        packetsLost: 0
+        packetsLost: 0,
     },
     video: {
         send: {
@@ -37,7 +37,7 @@ var getStatsResult = {
             availableBandwidth: 0,
             streams: 0,
             framerateMean: 0,
-            bitrateMean: 0
+            bitrateMean: 0,
         },
         recv: {
             tracks: [],
@@ -45,12 +45,12 @@ var getStatsResult = {
             availableBandwidth: 0,
             streams: 0,
             framerateMean: 0,
-            bitrateMean: 0
+            bitrateMean: 0,
         },
         bytesSent: 0,
         bytesReceived: 0,
         latency: 0,
-        packetsLost: 0
+        packetsLost: 0,
     },
     bandwidth: {
         systemBandwidth: 0,
@@ -58,9 +58,9 @@ var getStatsResult = {
         encodedPerSecond: 0,
         helper: {
             audioBytesSent: 0,
-            videoBytestSent: 0
+            videoBytestSent: 0,
         },
-        speed: 0
+        speed: 0,
     },
     results: {},
     connectionType: {
@@ -70,39 +70,39 @@ var getStatsResult = {
             candidateType: [],
             transport: [],
             ipAddress: [],
-            networkType: []
+            networkType: [],
         },
         remote: {
             candidateType: [],
             transport: [],
             ipAddress: [],
-            networkType: []
-        }
+            networkType: [],
+        },
     },
     resolutions: {
         send: {
             width: 0,
-            height: 0
+            height: 0,
         },
         recv: {
             width: 0,
-            height: 0
-        }
+            height: 0,
+        },
     },
     internal: {
         audio: {
             send: {},
-            recv: {}
+            recv: {},
         },
         video: {
             send: {},
-            recv: {}
+            recv: {},
         },
-        candidates: {}
+        candidates: {},
     },
     nomore: function() {
         nomore = true;
-    }
+    },
 };
 
 var getStatsParser = {
@@ -110,7 +110,7 @@ var getStatsParser = {
         if (result.type === 'googLibjingleSession') {
             getStatsResult.isOfferer = result.googInitiator;
         }
-    }
+    },
 };
 
 var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

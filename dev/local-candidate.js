@@ -48,7 +48,7 @@ getStatsParser.localcandidate = function(result) {
         transport: LOCAL_transport[result.id],
         timestamp: result.timestamp,
         id: result.id,
-        type: result.type
+        type: result.type,
     };
 
     getStatsResult.connectionType.local.candidateType = LOCAL_candidateType[result.id];

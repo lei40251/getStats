@@ -48,7 +48,7 @@ getStatsParser.remotecandidate = function(result) {
         transport: REMOTE_transport[result.id],
         timestamp: result.timestamp,
         id: result.id,
-        type: result.type
+        type: result.type,
     };
 
     getStatsResult.connectionType.remote.candidateType = REMOTE_candidateType[result.id];

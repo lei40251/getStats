@@ -3,16 +3,15 @@
 var getStats;
 
 try {
-    getStats = require('getstats');
-}
-catch(e) {
-    getStats = require('./getStats.js');
+  getStats = require('getstats');
+} catch (e) {
+  getStats = require('./getStats.js');
 }
 
-const fakeRtcPeerConnection = function() {};
+const fakeRtcPeerConnection = function () {};
 
-getStats(fakeRtcPeerConnection, function(result) {
-	console.log('result: ', result);
+getStats(fakeRtcPeerConnection, function (result) {
+  console.log('result: ', result);
 });
 
-process.exit()
+process.exit();
