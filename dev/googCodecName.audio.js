@@ -1,49 +1,84 @@
-var AUDIO_codecs = ['opus', 'isac', 'ilbc'];
-
 getStatsParser.checkAudioTracks = function(result) {
-    if (!result.googCodecName || result.mediaType !== 'audio') return;
-
-    if (AUDIO_codecs.indexOf(result.googCodecName.toLowerCase()) === -1) return;
+    if (result.mediaType !== 'audio') return;
 
     var sendrecvType = result.id.split('_').pop();
-
-    if (getStatsResult.audio[sendrecvType].codecs.indexOf(result.googCodecName) === -1) {
-        getStatsResult.audio[sendrecvType].codecs.push(result.googCodecName);
+    if (result.isRemote === true) {
+        sendrecvType = 'recv';
+    }
+    if (result.isRemote === false) {
+        sendrecvType = 'send';
     }
 
-    if (result.bytesSent) {
-        var kilobytes = 0;
-        if (!!result.bytesSent) {
-            if (!getStatsResult.internal.audio[sendrecvType].prevBytesSent) {
-                getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
-            }
+    if (!sendrecvType) return;
 
-            var bytes = result.bytesSent - getStatsResult.internal.audio[sendrecvType].prevBytesSent;
+    if (getStatsResult.audio[sendrecvType].codecs.indexOf(result.googCodecName || 'opus') === -1) {
+        getStatsResult.audio[sendrecvType].codecs.push(result.googCodecName || 'opus');
+    }
+
+    if (!!result.bytesSent) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio[sendrecvType].prevBytesSent) {
             getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
-
-            kilobytes = bytes / 1024;
         }
 
+        var bytes = result.bytesSent - getStatsResult.internal.audio[sendrecvType].prevBytesSent;
+        getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
+
+        kilobytes = bytes / 1024;
         getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.audio.bytesSent = kilobytes.toFixed(1);
     }
 
-    if (result.bytesReceived) {
+    if (!!result.bytesReceived) {
         var kilobytes = 0;
-        if (!!result.bytesReceived) {
-            if (!getStatsResult.internal.audio[sendrecvType].prevBytesReceived) {
-                getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
-            }
-
-            var bytes = result.bytesReceived - getStatsResult.internal.audio[sendrecvType].prevBytesReceived;
+        if (!getStatsResult.internal.audio[sendrecvType].prevBytesReceived) {
             getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
-
-            kilobytes = bytes / 1024;
         }
 
-        getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        var bytes = result.bytesReceived - getStatsResult.internal.audio[sendrecvType].prevBytesReceived;
+        getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
+
+        kilobytes = bytes / 1024;
+
+        // getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
     }
 
-    if (getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
+    if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
         getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
+    }
+
+    // calculate latency
+    if (!!result.googCurrentDelayMs) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevGoogCurrentDelayMs) {
+            getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+        }
+
+        var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
+        getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+        getStatsResult.audio.latency = bytes.toFixed(1);
+
+        if (getStatsResult.audio.latency < 0) {
+            getStatsResult.audio.latency = 0;
+        }
+    }
+
+    // calculate packetsLost
+    if (!!result.packetsLost) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevPacketsLost) {
+            getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+        }
+
+        var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
+        getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+
+        getStatsResult.audio.packetsLost = bytes.toFixed(1);
+
+        if (getStatsResult.audio.packetsLost < 0) {
+            getStatsResult.audio.packetsLost = 0;
+        }
     }
 };

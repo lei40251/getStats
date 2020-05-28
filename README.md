@@ -8,7 +8,7 @@ A tiny JavaScript library using [WebRTC getStats API](http://dev.w3.org/2011/web
 
 It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
 
-![getStats](https://cdn.webrtc-experiment.com/images/getStats.png)
+![getStats](https://www.webrtc-experiment.com/images/getStats.png)
 
 ```
 npm install getstats
@@ -30,62 +30,18 @@ To use it:
 # Link the library
 
 ```html
-<script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
-
-<!-- or min.js -->
-<script src="https://cdn.webrtc-experiment.com/getStats.min.js"></script>
-
-<!-- or without CDN -->
 <script src="https://www.webrtc-experiment.com/getStats.js"></script>
-
-<!-- or rawgit -->
-<script src="https://rawgit.com/muaz-khan/getStats/master/getStats.js"></script>
 ```
 
 Or link specific build:
 
 * https://github.com/muaz-khan/getStats/releases
 
-```html
-<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.6/getStats.js"></script>
-```
-
-# `window.getStats`
-
-To invoke directly:
+Or:
 
 ```javascript
-getStats(peer, callback, interval);
-```
-
-# RTCPeerConnection.prototype.getPeerStats
-
-Or, to setup an instance method:
-
-```javascript
-// if your code is encapsulated under a method
-(function() {
-    RTCPeerConnection.prototype.getPeerStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype.__getStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype.getConnectionStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype['your-choice'] = window.getStats;
-})();
-```
-
-**NEVER set/override `RTCPeerConnection.prototype.getStats`** because it is a reserved method.
-
-```javascript
-// following will fail
-RTCPeerConnection.prototype.getStats = window.getStats;
-
-// it should be
-RTCPeerConnection.prototype.intanceMethodNamae = window.getStats;
+const getStats = require('getstats');
+import getStats from 'getstats';
 ```
 
 # Usage
@@ -94,7 +50,7 @@ RTCPeerConnection.prototype.intanceMethodNamae = window.getStats;
 var rtcPeerConnection = new RTCPeerConnection(rtcConfig);
 
 var repeatInterval = 2000; // 2000 ms == 2 seconds
-rtcPeerConnection.getPeerStats(function(result) {
+getStats(rtcPeerConnection, function(result) {
     result.connectionType.remote.ipAddress
     result.connectionType.remote.candidateType
     result.connectionType.transport
@@ -118,10 +74,14 @@ rtcPeerConnection.getPeerStats(function(result) {
 }, repeatInterval);
 ```
 
-# Firefox?
+# Safari?
 
 ```javascript
-peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
+var audioTrack = stream.getTracks().filter(function(t) {
+    return t.kind === 'audio';
+});
+
+getStats(peer, audioTrack, function(results) {
     // rest goes here
 }, 5 * 1000);
 ```
@@ -502,4 +462,4 @@ getStatsResult.results.forEach(function(item) {
 
 ## License
 
-[getStats.js](https://github.com/muaz-khan/getStats) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+[getStats.js](https://github.com/muaz-khan/getStats) is released under [MIT licence](https://github.com/muaz-khan/getStats/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](https://MuazKhan.com/).

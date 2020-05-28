@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.10.05';</script>
+<script>window.demoVersion = '2019.02.20';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -13,11 +13,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <link rel="author" type="text/html" href="https://muazkhan.com">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
 
     <style>
             audio, video {
@@ -113,12 +113,16 @@
                 text-align: right;
                 padding-right: 15px;
             }
+
+            tr {
+                display: none;
+            }
     </style>
 
-    <script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://www.webrtc-experiment.com/getStats.js"></script>
+    <script src="https://www.webrtc-experiment.com/IceServersHandler.js"></script>
 
-    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
@@ -154,6 +158,7 @@
             </select>
             <select id="select-iceTransportLimitation">
                 <option value="all">UDP+TCP</option>
+                <option value="udp">UDP Only</option>
                 <option value="tcp">TCP Only</option>
             </select>
             <select id="select-codec">
@@ -171,25 +176,25 @@
             </thead>
 
             <tbody>
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>
                         Videos
                     </td>
                     <td>
-                        <video id="peer2-to-peer1" autoplay playsinilne controls muted></video>
+                        <video id="peer2-to-peer1" autoplay playsinilne controls muted volume=0></video>
                     </td>
                     <td>
-                        <video id="peer1-to-peer2" autoplay playsinilne controls muted></video>
+                        <video id="peer1-to-peer2" autoplay playsinilne controls muted volume=0></video>
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>Bandwidth Speed</td>
                     <td><span id="peer1-bandwidthSpeed"></span> per second</td>
                     <td><span id="peer2-bandwidthSpeed"></span> per second</td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>STUN/TURN?</td>
                     <td>
                         <label>Local:</label> <span id="peer1-localIceType"></span> (<span id="peer1-localTransport"></span>)<br>
@@ -201,7 +206,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Codecs</td>
                     <td>
                         <label>Send:</label> <span id="peer1-codecsSend"></span><br>
@@ -213,13 +218,13 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Encryption</td>
                     <td><span id="peer1-encryptedAs"></span></td>
                     <td><span id="peer2-encryptedAs"></span></td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>IP Address</td>
                     <td>
                         <label>Send:</label> <span id="peer1-externalIPAddressLocal"></span><br>
@@ -231,7 +236,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Resolutions</td>
                     <td>
                         <label>Send:</label> <span id="peer1-videoResolutionsForSenders"></span><br>
@@ -243,7 +248,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>Data</td>
                     <td>
                         <label>Send:</label> <span id="peer1-totalDataForSenders"></span><br>
@@ -252,6 +257,50 @@
                     <td>
                         <label>Send:</label> <span id="peer2-totalDataForSenders"></span><br>
                         <label>Recv:</label> <span id="peer2-totalDataForReceivers"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-allowed chrome-not-allowed">
+                    <td>framerateMean</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-framerateMean"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-framerateMean"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-allowed chrome-not-allowed">
+                    <td>bitrateMean</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-bitrateMean"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-bitrateMean"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-not-allowed chrome-allowed">
+                    <td>latency</td>
+                    <td>
+                        <label>Audio:</label> <span id="peer1-audio-latency"></span><br>
+                        <label>Video:</label> <span id="peer1-video-latency"></span>
+                    </td>
+                    <td>
+                        <label>Audio:</label> <span id="peer2-audio-latency"></span><br>
+                        <label>Video:</label> <span id="peer2-video-latency"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-not-allowed chrome-allowed">
+                    <td>packetsLost</td>
+                    <td>
+                        <label>Audio:</label> <span id="peer1-audio-packetsLost"></span><br>
+                        <label>Video:</label> <span id="peer1-video-packetsLost"></span>
+                    </td>
+                    <td>
+                        <label>Audio:</label> <span id="peer2-audio-packetsLost"></span><br>
+                        <label>Video:</label> <span id="peer2-video-packetsLost"></span>
                     </td>
                 </tr>
             </tbody>
@@ -296,6 +345,12 @@
                         }
                     }
 
+                    if(iceTransportLimitation.value === 'udp') {
+                        if(candidate.candidate.toLowerCase().indexOf('udp') === -1) {
+                            return; // ignore UDP
+                        }
+                    }
+
                     peer.addIceCandidate(candidate);
                 }
             </script>
@@ -334,16 +389,16 @@
 
                         offererToAnswerer.srcObject = event.streams[0];
 
-                        if (typeof window.InstallTrigger !== 'undefined') {
+                        if(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
                             getStats(offerer, event.streams[0].getTracks()[0], function(result) {
                                 previewGetStatsResult(offerer, result);
                             }, 1000);
+                            return;
                         }
-                        else {
-                            getStats(offerer, function(result) {
-                                previewGetStatsResult(offerer, result);
-                            }, 1000);
-                        }
+
+                        getStats(offerer, function(result) {
+                            previewGetStatsResult(offerer, result);
+                        }, 1000);
                     };
 
                     offerer.onicecandidate = function (event) {
@@ -376,17 +431,17 @@
                         firedOnce = true;
 
                         answererToOfferer.srcObject = event.streams[0];
+
+                        if(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                            getStats(offerer, event.streams[0].getTracks()[0], function(result) {
+                                previewGetStatsResult(offerer, result);
+                            }, 1000);
+                            return;
+                        }
                         
-                        if (typeof window.InstallTrigger !== 'undefined') {
-                            getStats(answerer, event.streams[0].getTracks()[0], function(result) {
-                                previewGetStatsResult(answerer, result);
-                            }, 1000);
-                        }
-                        else {
-                            getStats(answerer, function(result) {
-                                previewGetStatsResult(answerer, result);
-                            }, 1000);
-                        }
+                        getStats(answerer, function(result) {
+                            previewGetStatsResult(answerer, result);
+                        }, 1000);
                     };
 
                     answerer.onicecandidate = function (event) {
@@ -483,11 +538,43 @@
 
                         document.getElementById('peer' + peer.idx + '-bandwidthSpeed').innerHTML = bytesToSize(result.bandwidth.speed);
 
+                        document.getElementById('peer' + peer.idx + '-framerateMean').innerHTML = bytesToSize(result.video.send.framerateMean);
+                        document.getElementById('peer' + peer.idx + '-bitrateMean').innerHTML = bytesToSize(result.video.send.bitrateMean);
+
+                        document.getElementById('peer' + peer.idx + '-audio-latency').innerHTML = result.audio.latency + 'ms';
+                        document.getElementById('peer' + peer.idx + '-video-latency').innerHTML = result.video.latency + 'ms';
+
+                        document.getElementById('peer' + peer.idx + '-audio-packetsLost').innerHTML = result.audio.packetsLost;
+                        document.getElementById('peer' + peer.idx + '-video-packetsLost').innerHTML = result.video.packetsLost;
+
                         if (result.ended === true) {
                             result.nomore();
                         }
 
                         window.getStatsResult = result;
+                }
+
+                if (typeof window.InstallTrigger !== 'undefined') {
+                    var all = document.querySelectorAll('.firefox-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'table-row';
+                    }
+
+                    var all = document.querySelectorAll('.firefox-not-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'none';
+                    }
+                }
+                else {
+                    var all = document.querySelectorAll('.chrome-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'table-row';
+                    }
+
+                    var all = document.querySelectorAll('.chrome-not-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'none';
+                    }
                 }
 
                 function bytesToSize(bytes) {
@@ -629,7 +716,7 @@
     <script>
         window.useThisGithubPath = 'muaz-khan/getStats';
     </script>
-    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+    <script src="https://www.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>
