@@ -58,7 +58,7 @@ getStatsParser.checkAudioTracks = function(result) {
         var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
         getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
 
-        getStatsResult.audio.latency = bytes.toFixed(1);
+        getStatsResult.audio.latency = bytes.toFixed(0);
 
         if (getStatsResult.audio.latency < 0) {
             getStatsResult.audio.latency = 0;
@@ -75,7 +75,7 @@ getStatsParser.checkAudioTracks = function(result) {
         var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
         getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
 
-        getStatsResult.audio.packetsLost = bytes.toFixed(1);
+        getStatsResult.audio.packetsLost = bytes.toFixed(0);
 
         if (getStatsResult.audio.packetsLost < 0) {
             getStatsResult.audio.packetsLost = 0;

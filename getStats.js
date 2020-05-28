@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2020-05-28 7:31:35 AM UTC
+// Last time updated: 2020-05-28 8:18:54 AM UTC
 
 // _______________
 // getStats v1.2.0
@@ -178,8 +178,11 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             helper: {
                 audioBytesSent: 0,
                 videoBytestSent: 0,
+                audioBytesRecv: 0,
+                videoBytesRecv: 0,
             },
-            speed: 0,
+            upSpeed: 0,
+            downSpeed: 0,
         },
         results: {},
         connectionType: {
@@ -286,12 +289,19 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             getStatsResult.results = results;
 
             if (getStatsResult.audio && getStatsResult.video) {
-                getStatsResult.bandwidth.speed =
+                getStatsResult.bandwidth.upSpeed =
                     getStatsResult.audio.bytesSent -
                     getStatsResult.bandwidth.helper.audioBytesSent +
                     (getStatsResult.video.bytesSent - getStatsResult.bandwidth.helper.videoBytesSent);
                 getStatsResult.bandwidth.helper.audioBytesSent = getStatsResult.audio.bytesSent;
                 getStatsResult.bandwidth.helper.videoBytesSent = getStatsResult.video.bytesSent;
+
+                getStatsResult.bandwidth.downSpeed =
+                    getStatsResult.audio.bytesReceived -
+                    getStatsResult.bandwidth.helper.audioBytesRecv +
+                    (getStatsResult.video.bytesReceived - getStatsResult.bandwidth.helper.videoBytesRecv);
+                getStatsResult.bandwidth.helper.audioBytesRecv = getStatsResult.audio.bytesReceived;
+                getStatsResult.bandwidth.helper.videoBytesRecv = getStatsResult.video.bytesReceived;
             }
 
             callback(getStatsResult);
@@ -421,7 +431,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
             getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
 
-            getStatsResult.audio.latency = bytes.toFixed(1);
+            getStatsResult.audio.latency = bytes.toFixed(0);
 
             if (getStatsResult.audio.latency < 0) {
                 getStatsResult.audio.latency = 0;
@@ -438,7 +448,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
             getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
 
-            getStatsResult.audio.packetsLost = bytes.toFixed(1);
+            getStatsResult.audio.packetsLost = bytes.toFixed(0);
 
             if (getStatsResult.audio.packetsLost < 0) {
                 getStatsResult.audio.packetsLost = 0;
@@ -544,7 +554,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             var bytes = result.googCurrentDelayMs - getStatsResult.internal.video.prevGoogCurrentDelayMs;
             getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
 
-            getStatsResult.video.latency = bytes.toFixed(1);
+            getStatsResult.video.latency = bytes.toFixed(0);
 
             if (getStatsResult.video.latency < 0) {
                 getStatsResult.video.latency = 0;
@@ -561,7 +571,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
             getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
 
-            getStatsResult.video.packetsLost = bytes.toFixed(1);
+            getStatsResult.video.packetsLost = bytes.toFixed(0);
 
             if (getStatsResult.video.packetsLost < 0) {
                 getStatsResult.video.packetsLost = 0;

@@ -96,7 +96,7 @@ getStatsParser.checkVideoTracks = function(result) {
         var bytes = result.googCurrentDelayMs - getStatsResult.internal.video.prevGoogCurrentDelayMs;
         getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
 
-        getStatsResult.video.latency = bytes.toFixed(1);
+        getStatsResult.video.latency = bytes.toFixed(0);
 
         if (getStatsResult.video.latency < 0) {
             getStatsResult.video.latency = 0;
@@ -113,7 +113,7 @@ getStatsParser.checkVideoTracks = function(result) {
         var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
         getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
 
-        getStatsResult.video.packetsLost = bytes.toFixed(1);
+        getStatsResult.video.packetsLost = bytes.toFixed(0);
 
         if (getStatsResult.video.packetsLost < 0) {
             getStatsResult.video.packetsLost = 0;

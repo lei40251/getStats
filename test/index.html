@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>getStats.js Demo | WebRTC getStats API</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="stylesheet" href="./style.css" />
+
+    <style></style>
+
+    <script src="../getStats.js"></script>
+    <script src="./IceServersHandler.js"></script>
+    <script src="./adapter-latest.js"></script>
+  </head>
+
+  <body>
+    <article>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <button id="btn-stop" disabled>STOP</button>
+        <select id="select-iceTransportPolicy">
+          <option value="all">STUN+TURN</option>
+          <option value="relay">TURN Only</option>
+        </select>
+        <select id="select-iceTransportLimitation">
+          <option value="all">UDP+TCP</option>
+          <option value="udp">UDP Only</option>
+          <option value="tcp">TCP Only</option>
+        </select>
+        <select id="select-codec">
+          <option value="vp8">VP8</option>
+          <option value="vp9">VP9</option>
+          <option value="h264">H264</option>
+        </select>
+      </div>
+
+      <table>
+        <thead>
+          <th></th>
+          <th>First Peer</th>
+          <th>Second Peer</th>
+        </thead>
+
+        <tbody>
+          <tr class="firefox-allowed chrome-allowed">
+            <td>
+              Videos
+            </td>
+            <td>
+              <video id="peer2-to-peer1" autoplay playsinilne controls muted volume="0"></video>
+            </td>
+            <td>
+              <video id="peer1-to-peer2" autoplay playsinilne controls muted volume="0"></video>
+            </td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-allowed">
+            <td>Bandwidth Speed</td>
+            <td>
+              <label>up:</label> <span id="peer1-bandwidthUpSpeed"></span> per second<br />
+              <label>down:</label> <span id="peer1-bandwidthDownSpeed"></span> per second
+            </td>
+            <td>
+              <label>up:</label><span id="peer2-bandwidthUpSpeed"></span> per second<br />
+              <label>down:</label><span id="peer2-bandwidthDownSpeed"></span> per second
+            </td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-allowed">
+            <td>STUN/TURN?</td>
+            <td>
+              <label>Local:</label> <span id="peer1-localIceType"></span> (<span id="peer1-localTransport"></span>)<br />
+              <label>Remote:</label> <span id="peer1-remoteIceType"></span> (<span id="peer1-remoteTransport"></span>)<br />
+            </td>
+            <td>
+              <label>Local:</label> <span id="peer2-localIceType"></span> (<span id="peer2-localTransport"></span>)<br />
+              <label>Remote:</label> <span id="peer2-remoteIceType"></span> (<span id="peer2-remoteTransport"></span>)<br />
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>Codecs</td>
+            <td>
+              <label>Send:</label> <span id="peer1-codecsSend"></span><br />
+              <label>Recv:</label> <span id="peer1-codecsRecv"></span><br />
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-codecsSend"></span><br />
+              <label>Recv:</label> <span id="peer2-codecsRecv"></span><br />
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>Encryption</td>
+            <td><span id="peer1-encryptedAs"></span></td>
+            <td><span id="peer2-encryptedAs"></span></td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-allowed">
+            <td>IP Address</td>
+            <td>
+              <label>Send:</label> <span id="peer1-externalIPAddressLocal"></span><br />
+              <label>Recv:</label> <span id="peer1-externalIPAddressRemote"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-externalIPAddressLocal"></span><br />
+              <label>Recv:</label> <span id="peer2-externalIPAddressRemote"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>Resolutions</td>
+            <td>
+              <label>Send:</label> <span id="peer1-videoResolutionsForSenders"></span><br />
+              <label>Recv:</label> <span id="peer1-videoResolutionsForReceivers"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-videoResolutionsForSenders"></span><br />
+              <label>Recv:</label> <span id="peer2-videoResolutionsForReceivers"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-allowed">
+            <td>Data</td>
+            <td>
+              <label>Send:</label> <span id="peer1-totalDataForSenders"></span><br />
+              <label>Recv:</label> <span id="peer1-totalDataForReceivers"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-totalDataForSenders"></span><br />
+              <label>Recv:</label> <span id="peer2-totalDataForReceivers"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-not-allowed">
+            <td>framerateMean</td>
+            <td><label>Send:</label> <span id="peer1-framerateMean"></span></td>
+            <td><label>Send:</label> <span id="peer2-framerateMean"></span></td>
+          </tr>
+
+          <tr class="firefox-allowed chrome-not-allowed">
+            <td>bitrateMean</td>
+            <td><label>Send:</label> <span id="peer1-bitrateMean"></span></td>
+            <td><label>Send:</label> <span id="peer2-bitrateMean"></span></td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>Latency</td>
+            <td>
+              <label>Audio:</label> <span id="peer1-audio-latency"></span><br />
+              <label>Video:</label> <span id="peer1-video-latency"></span>
+            </td>
+            <td>
+              <label>Audio:</label> <span id="peer2-audio-latency"></span><br />
+              <label>Video:</label> <span id="peer2-video-latency"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketsLost</td>
+            <td>
+              <label>Audio:</label> <span id="peer1-audio-packetsLost"></span><br />
+              <label>Video:</label> <span id="peer1-video-packetsLost"></span>
+            </td>
+            <td>
+              <label>Audio:</label> <span id="peer2-audio-packetsLost"></span><br />
+              <label>Video:</label> <span id="peer2-video-packetsLost"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+    <script src="./test.js"></script>
+  </body>
+</html>
