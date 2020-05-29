@@ -44,6 +44,31 @@ getStatsParser.checkVideoTracks = function(result) {
         getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
     }
 
+    if (!!result.packetsReceived) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video.prevPacketsReceived) {
+            getStatsResult.internal.video.prevPacketsReceived = result.packetsReceived;
+        }
+
+        var packetsReceived = result.packetsReceived - getStatsResult.internal.video.prevPacketsReceived;
+        getStatsResult.internal.video.prevPacketsReceived = result.packetsReceived;
+
+        getStatsResult.video.packetsReceived = packetsReceived;
+    }
+
+    if (!!result.packetsSent) {
+        // console.log('send: ', ((+result.packetsLost / +result.packetsSent) * 100).toFixed(2));
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video.prevPacketsSent) {
+            getStatsResult.internal.video.prevPacketsSent = result.packetsSent;
+        }
+
+        var packetsSent = result.packetsSent - getStatsResult.internal.video.prevPacketsSent;
+        getStatsResult.internal.video.prevPacketsSent = result.packetsSent;
+
+        getStatsResult.video.packetsSent = packetsSent;
+    }
+
     if (result.googFrameHeightReceived && result.googFrameWidthReceived) {
         getStatsResult.resolutions[sendrecvType].width = result.googFrameWidthReceived;
         getStatsResult.resolutions[sendrecvType].height = result.googFrameHeightReceived;
@@ -103,20 +128,25 @@ getStatsParser.checkVideoTracks = function(result) {
         }
     }
 
+    if (result.isRemote) {
+        console.log('result: ', result);
+    }
+
     // calculate packetsLost
     if (!!result.packetsLost) {
+        console.log('type: ', sendrecvType);
         var kilobytes = 0;
-        if (!getStatsResult.internal.video.prevPacketsLost) {
-            getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+        if (!getStatsResult.internal.video[sendrecvType].prevPacketsLost) {
+            getStatsResult.internal.video[sendrecvType].prevPacketsLost = result.packetsLost;
         }
 
-        var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
-        getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+        var bytes = result.packetsLost - getStatsResult.internal.video[sendrecvType].prevPacketsLost;
+        getStatsResult.internal.video[sendrecvType].prevPacketsLost = result.packetsLost;
 
-        getStatsResult.video.packetsLost = bytes.toFixed(0);
+        getStatsResult.video[sendrecvType].packetsLost = bytes.toFixed(0);
 
-        if (getStatsResult.video.packetsLost < 0) {
-            getStatsResult.video.packetsLost = 0;
+        if (getStatsResult.video[sendrecvType].packetsLost < 0) {
+            getStatsResult.video[sendrecvType].packetsLost = 0;
         }
     }
 };

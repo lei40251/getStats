@@ -44,6 +44,33 @@ var offerer, answerer;
 var offererToAnswerer = document.getElementById('peer1-to-peer2');
 var answererToOfferer = document.getElementById('peer2-to-peer1');
 
+/* video to peer */
+var leftVideo = document.getElementById('leftVideo');
+var stream;
+function maybeCreateStream() {
+  if (stream) {
+    return;
+  }
+  if (leftVideo.captureStream) {
+    stream = leftVideo.captureStream();
+  } else if (leftVideo.mozCaptureStream) {
+    stream = leftVideo.mozCaptureStream();
+  } else {
+    console.log('captureStream() not supported');
+  }
+}
+
+// Video tag capture must be set up after video tracks are enumerated.
+leftVideo.oncanplay = maybeCreateStream;
+if (leftVideo.readyState >= 3) {
+  // HAVE_FUTURE_DATA
+  // Video is already ready to play, call maybeCreateStream in case oncanplay
+  // fired before we registered the event handler.
+  maybeCreateStream();
+}
+
+/* end video to peer */
+
 var iceServers = {
   iceServers: IceServersHandler.getIceServers(),
   iceTransportPolicy: iceTransportPolicy.value,
@@ -72,25 +99,51 @@ function offererPeer(video_stream) {
 
     offererToAnswerer.srcObject = event.streams[0];
 
-    if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-      getStats(
-        offerer,
-        event.streams[0].getTracks()[0],
-        function (result) {
-          previewGetStatsResult(offerer, result);
-        },
-        1000,
-      );
-      return;
-    }
+    window.setInterval(function () {
+      var rt=[]
+      offerer.getStats(null).then((stats) => {
+        let statsOutput = '';
 
-    getStats(
-      offerer,
-      function (result) {
-        previewGetStatsResult(offerer, result);
-      },
-      1000,
-    );
+        stats.forEach((report) => {
+          rt.push(report)
+          // statsOutput +=
+          //   `<h2>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` + `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
+
+          // // Now the statistics for this report; we intentially drop the ones we
+          // // sorted to the top above
+
+          // Object.keys(report).forEach((statName) => {
+          //   if (statName !== 'id' && statName !== 'timestamp' && statName !== 'type') {
+          //     statsOutput[statName] = report[statName];
+          //   }
+          // });
+        });
+
+        console.log(rt)
+        // document.querySelector(".stats-box").innerHTML = statsOutput;
+        // console.log(statsOutput);
+      });
+    }, 1000);
+
+    // if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+    //   getStats(
+    //     offerer,
+    //     event.streams[0].getTracks()[1],
+    //     function (result) {
+    //       previewGetStatsResult(offerer, result);
+    //     },
+    //     1000,
+    //   );
+    //   return;
+    // }
+
+    // getStats(
+    //   offerer,
+    //   function (result) {
+    //     previewGetStatsResult(offerer, result);
+    //   },
+    //   1000,
+    // );
   };
 
   offerer.onicecandidate = function (event) {
@@ -101,7 +154,7 @@ function offererPeer(video_stream) {
   offerer.createOffer(mediaConstraints).then(function (offer) {
     offer.sdp = preferSelectedCodec(offer.sdp);
     offerer.setLocalDescription(offer).then(function () {
-      answererPeer(offer, video_stream);
+      answererPeer(offer, stream);
     });
   });
 }
@@ -124,10 +177,10 @@ function answererPeer(offer, video_stream) {
 
     if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
       getStats(
-        offerer,
-        event.streams[0].getTracks()[0],
+        answerer,
+        event.streams[0].getTracks()[1],
         function (result) {
-          previewGetStatsResult(offerer, result);
+          previewGetStatsResult(answerer, result);
         },
         1000,
       );
@@ -191,6 +244,7 @@ document.getElementById('btn-stop').onclick = function () {
 };
 
 function previewGetStatsResult(peer, result) {
+  // console.log(result);
   if (STOP_GETSTATS) {
     result.nomore();
     return;
@@ -239,8 +293,27 @@ function previewGetStatsResult(peer, result) {
   document.getElementById('peer' + peer.idx + '-audio-latency').innerHTML = result.audio.latency + 'ms';
   document.getElementById('peer' + peer.idx + '-video-latency').innerHTML = result.video.latency + 'ms';
 
-  document.getElementById('peer' + peer.idx + '-audio-packetsLost').innerHTML = result.audio.packetsLost;
-  document.getElementById('peer' + peer.idx + '-video-packetsLost').innerHTML = result.video.packetsLost;
+  document.getElementById('peer' + peer.idx + '-audio-send-packetLossRate').innerHTML =
+    +result.audio.send.packetsLost > 0 ? ((+result.audio.send.packetsLost / +result.audio.packetsSent) * 100).toFixed(1) + '%' : 0;
+  document.getElementById('peer' + peer.idx + '-audio-recv-packetLossRate').innerHTML =
+    +result.audio.recv.packetsLost > 0 ? ((+result.audio.recv.packetsLost / +result.audio.packetsReceived) * 100).toFixed(1) + '%' : 0;
+
+  document.getElementById('peer' + peer.idx + '-video-send-packetLossRate').innerHTML =
+    +result.video.send.packetsLost > 0 ? ((+result.video.send.packetsLost / +result.video.packetsSent) * 100).toFixed(1) + '%' : 0;
+  document.getElementById('peer' + peer.idx + '-video-recv-packetLossRate').innerHTML =
+    +result.video.recv.packetsLost > 0 ? ((+result.video.recv.packetsLost / +result.video.packetsReceived) * 100).toFixed(1) + '%' : 0;
+
+  document.getElementById('peer' + peer.idx + '-audio-send-packetsLost').innerHTML = result.audio.send.packetsLost;
+  document.getElementById('peer' + peer.idx + '-audio-recv-packetsLost').innerHTML = result.audio.recv.packetsLost;
+
+  document.getElementById('peer' + peer.idx + '-video-send-packetsLost').innerHTML = result.video.send.packetsLost;
+  document.getElementById('peer' + peer.idx + '-video-recv-packetsLost').innerHTML = result.video.recv.packetsLost;
+
+  document.getElementById('peer' + peer.idx + '-video-packetsSent').innerHTML = result.video.packetsSent;
+  document.getElementById('peer' + peer.idx + '-audio-packetsSent').innerHTML = result.audio.packetsSent;
+
+  document.getElementById('peer' + peer.idx + '-video-packetsReceived').innerHTML = result.video.packetsReceived;
+  document.getElementById('peer' + peer.idx + '-audio-packetsReceived').innerHTML = result.audio.packetsReceived;
 
   if (result.ended === true) {
     result.nomore();

@@ -16,13 +16,13 @@
 
   <body>
     <article>
-      <div style="text-align: center; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: left; align-items: center; padding: 10px 0 20px;">
         <button id="btn-stop" disabled>STOP</button>
-        <select id="select-iceTransportPolicy">
+        <select id="select-iceTransportPolicy" class="hide">
           <option value="all">STUN+TURN</option>
           <option value="relay">TURN Only</option>
         </select>
-        <select id="select-iceTransportLimitation">
+        <select id="select-iceTransportLimitation" class="hide">
           <option value="all">UDP+TCP</option>
           <option value="udp">UDP Only</option>
           <option value="tcp">TCP Only</option>
@@ -36,20 +36,25 @@
 
       <table>
         <thead>
-          <th></th>
-          <th>First Peer</th>
-          <th>Second Peer</th>
+          <tr class="firefox-allowed chrome-allowed">
+            <th></th>
+            <th style="text-align: center; padding: 5px 0;">First Peer</th>
+            <th style="text-align: center; padding: 5px 0;">Second Peer</th>
+          </tr>
         </thead>
 
         <tbody>
           <tr class="firefox-allowed chrome-allowed">
             <td>
               Videos
+              <video id="leftVideo" playsinline controls muted autoplay loop volume="0" style="visibility: hidden;">
+                <source src="./chrome.webm" type="video/webm" />
+              </video>
             </td>
-            <td>
+            <td style="padding: 5px;">
               <video id="peer2-to-peer1" autoplay playsinilne controls muted volume="0"></video>
             </td>
-            <td>
+            <td style="padding: 5px;">
               <video id="peer1-to-peer2" autoplay playsinilne controls muted volume="0"></video>
             </td>
           </tr>
@@ -57,12 +62,12 @@
           <tr class="firefox-allowed chrome-allowed">
             <td>Bandwidth Speed</td>
             <td>
-              <label>up:</label> <span id="peer1-bandwidthUpSpeed"></span> per second<br />
-              <label>down:</label> <span id="peer1-bandwidthDownSpeed"></span> per second
+              <label>Up:</label> <span id="peer1-bandwidthUpSpeed"></span> per second<br />
+              <label>Down:</label> <span id="peer1-bandwidthDownSpeed"></span> per second
             </td>
             <td>
-              <label>up:</label><span id="peer2-bandwidthUpSpeed"></span> per second<br />
-              <label>down:</label><span id="peer2-bandwidthDownSpeed"></span> per second
+              <label>Up:</label><span id="peer2-bandwidthUpSpeed"></span> per second<br />
+              <label>Down:</label><span id="peer2-bandwidthDownSpeed"></span> per second
             </td>
           </tr>
 
@@ -92,8 +97,8 @@
 
           <tr class="firefox-not-allowed chrome-allowed">
             <td>Encryption</td>
-            <td><span id="peer1-encryptedAs"></span></td>
-            <td><span id="peer2-encryptedAs"></span></td>
+            <td align="center"><span id="peer1-encryptedAs"></span></td>
+            <td align="center"><span id="peer2-encryptedAs"></span></td>
           </tr>
 
           <tr class="firefox-allowed chrome-allowed">
@@ -157,14 +162,74 @@
           </tr>
 
           <tr class="firefox-not-allowed chrome-allowed">
-            <td>PacketsLost</td>
+            <td>PacketsSent</td>
             <td>
-              <label>Audio:</label> <span id="peer1-audio-packetsLost"></span><br />
-              <label>Video:</label> <span id="peer1-video-packetsLost"></span>
+              <label>Audio:</label> <span id="peer1-audio-packetsSent"></span><br />
+              <label>Video:</label> <span id="peer1-video-packetsSent"></span>
             </td>
             <td>
-              <label>Audio:</label> <span id="peer2-audio-packetsLost"></span><br />
-              <label>Video:</label> <span id="peer2-video-packetsLost"></span>
+              <label>Audio:</label> <span id="peer2-audio-packetsSent"></span><br />
+              <label>Video:</label> <span id="peer2-video-packetsSent"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketsReceived</td>
+            <td>
+              <label>Audio:</label> <span id="peer1-audio-packetsReceived"></span><br />
+              <label>Video:</label> <span id="peer1-video-packetsReceived"></span>
+            </td>
+            <td>
+              <label>Audio:</label> <span id="peer2-audio-packetsReceived"></span><br />
+              <label>Video:</label> <span id="peer2-video-packetsReceived"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketLossRate Video</td>
+            <td>
+              <label>Send:</label> <span id="peer1-video-send-packetLossRate"></span><br />
+              <label>Recv:</label> <span id="peer1-video-recv-packetLossRate"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-video-send-packetLossRate"></span><br />
+              <label>Recv:</label> <span id="peer2-video-recv-packetLossRate"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketLossRate Audio</td>
+            <td>
+              <label>Send:</label> <span id="peer1-audio-send-packetLossRate"></span><br />
+              <label>Recv:</label> <span id="peer1-audio-recv-packetLossRate"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-audio-send-packetLossRate"></span><br />
+              <label>Recv:</label> <span id="peer2-audio-recv-packetLossRate"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketsLost Video</td>
+            <td>
+              <label>Send:</label> <span id="peer1-video-send-packetsLost"></span><br />
+              <label>Recv:</label> <span id="peer1-video-recv-packetsLost"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-video-send-packetsLost"></span><br />
+              <label>Recv:</label> <span id="peer2-video-recv-packetsLost"></span>
+            </td>
+          </tr>
+
+          <tr class="firefox-not-allowed chrome-allowed">
+            <td>PacketsLost Audio</td>
+            <td>
+              <label>Send:</label> <span id="peer1-audio-send-packetsLost"></span><br />
+              <label>Recv:</label> <span id="peer1-audio-recv-packetsLost"></span>
+            </td>
+            <td>
+              <label>Send:</label> <span id="peer2-audio-send-packetsLost"></span><br />
+              <label>Recv:</label> <span id="peer2-audio-recv-packetsLost"></span>
             </td>
           </tr>
         </tbody>

@@ -16,6 +16,7 @@ var getStatsResult = {
             streams: 0,
             framerateMean: 0,
             bitrateMean: 0,
+            packetsLost: 0,
         },
         recv: {
             tracks: [],
@@ -24,11 +25,13 @@ var getStatsResult = {
             streams: 0,
             framerateMean: 0,
             bitrateMean: 0,
+            packetsLost: 0,
         },
         bytesSent: 0,
         bytesReceived: 0,
         latency: 0,
-        packetsLost: 0,
+        packetsReceived: 0,
+        packetsSent: 0,
     },
     video: {
         send: {
@@ -38,6 +41,7 @@ var getStatsResult = {
             streams: 0,
             framerateMean: 0,
             bitrateMean: 0,
+            packetsLost: 0,
         },
         recv: {
             tracks: [],
@@ -46,11 +50,13 @@ var getStatsResult = {
             streams: 0,
             framerateMean: 0,
             bitrateMean: 0,
+            packetsLost: 0,
         },
         bytesSent: 0,
         bytesReceived: 0,
         latency: 0,
-        packetsLost: 0,
+        packetsReceived: 0,
+        packetsSent: 0,
     },
     bandwidth: {
         systemBandwidth: 0,

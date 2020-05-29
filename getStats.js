@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2020-05-28 8:18:54 AM UTC
+// Last time updated: 2020-05-29 8:47:16 AM UTC
 
 // _______________
 // getStats v1.2.0
@@ -135,6 +135,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 streams: 0,
                 framerateMean: 0,
                 bitrateMean: 0,
+                packetsLost: 0,
             },
             recv: {
                 tracks: [],
@@ -143,11 +144,13 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 streams: 0,
                 framerateMean: 0,
                 bitrateMean: 0,
+                packetsLost: 0,
             },
             bytesSent: 0,
             bytesReceived: 0,
             latency: 0,
-            packetsLost: 0,
+            packetsReceived: 0,
+            packetsSent: 0,
         },
         video: {
             send: {
@@ -157,6 +160,7 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 streams: 0,
                 framerateMean: 0,
                 bitrateMean: 0,
+                packetsLost: 0,
             },
             recv: {
                 tracks: [],
@@ -165,11 +169,13 @@ var getStats = function(mediaStreamTrack, callback, interval) {
                 streams: 0,
                 framerateMean: 0,
                 bitrateMean: 0,
+                packetsLost: 0,
             },
             bytesSent: 0,
             bytesReceived: 0,
             latency: 0,
-            packetsLost: 0,
+            packetsReceived: 0,
+            packetsSent: 0,
         },
         bandwidth: {
             systemBandwidth: 0,
@@ -417,6 +423,31 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
         }
 
+
+        if (!!result.packetsReceived) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.audio.prevPacketsReceived) {
+                getStatsResult.internal.audio.prevPacketsReceived = result.packetsReceived;
+            }
+
+            var packetsReceived = result.packetsReceived - getStatsResult.internal.audio.prevPacketsReceived;
+            getStatsResult.internal.audio.prevPacketsReceived = result.packetsReceived;
+
+            getStatsResult.audio.packetsReceived = packetsReceived;
+        }
+
+        if (!!result.packetsSent) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.audio.prevPacketsSent) {
+                getStatsResult.internal.audio.prevPacketsSent = result.packetsSent;
+            }
+
+            var packetsSent = result.packetsSent - getStatsResult.internal.audio.prevPacketsSent;
+            getStatsResult.internal.audio.prevPacketsSent = result.packetsSent;
+
+            getStatsResult.audio.packetsSent = packetsSent;
+        }
+
         if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
             getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
         }
@@ -441,17 +472,17 @@ var getStats = function(mediaStreamTrack, callback, interval) {
         // calculate packetsLost
         if (!!result.packetsLost) {
             var kilobytes = 0;
-            if (!getStatsResult.internal.audio.prevPacketsLost) {
-                getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+            if (!getStatsResult.internal.audio[sendrecvType].prevPacketsLost) {
+                getStatsResult.internal.audio[sendrecvType].prevPacketsLost = result.packetsLost;
             }
 
-            var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
-            getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+            var bytes = result.packetsLost - getStatsResult.internal.audio[sendrecvType].prevPacketsLost;
+            getStatsResult.internal.audio[sendrecvType].prevPacketsLost = result.packetsLost;
 
-            getStatsResult.audio.packetsLost = bytes.toFixed(0);
+            getStatsResult.audio[sendrecvType].packetsLost = bytes.toFixed(0);
 
-            if (getStatsResult.audio.packetsLost < 0) {
-                getStatsResult.audio.packetsLost = 0;
+            if (getStatsResult.audio[sendrecvType].packetsLost < 0) {
+                getStatsResult.audio[sendrecvType].packetsLost = 0;
             }
         }
     };
@@ -500,6 +531,31 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             kilobytes = bytes / 1024;
             // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
             getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
+        }
+
+        if (!!result.packetsReceived) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.video.prevPacketsReceived) {
+                getStatsResult.internal.video.prevPacketsReceived = result.packetsReceived;
+            }
+
+            var packetsReceived = result.packetsReceived - getStatsResult.internal.video.prevPacketsReceived;
+            getStatsResult.internal.video.prevPacketsReceived = result.packetsReceived;
+
+            getStatsResult.video.packetsReceived = packetsReceived;
+        }
+
+        if (!!result.packetsSent) {
+            // console.log('send: ', ((+result.packetsLost / +result.packetsSent) * 100).toFixed(2));
+            var kilobytes = 0;
+            if (!getStatsResult.internal.video.prevPacketsSent) {
+                getStatsResult.internal.video.prevPacketsSent = result.packetsSent;
+            }
+
+            var packetsSent = result.packetsSent - getStatsResult.internal.video.prevPacketsSent;
+            getStatsResult.internal.video.prevPacketsSent = result.packetsSent;
+
+            getStatsResult.video.packetsSent = packetsSent;
         }
 
         if (result.googFrameHeightReceived && result.googFrameWidthReceived) {
@@ -561,20 +617,25 @@ var getStats = function(mediaStreamTrack, callback, interval) {
             }
         }
 
+        if (result.isRemote) {
+            console.log('result: ', result);
+        }
+
         // calculate packetsLost
         if (!!result.packetsLost) {
+            console.log('type: ', sendrecvType);
             var kilobytes = 0;
-            if (!getStatsResult.internal.video.prevPacketsLost) {
-                getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+            if (!getStatsResult.internal.video[sendrecvType].prevPacketsLost) {
+                getStatsResult.internal.video[sendrecvType].prevPacketsLost = result.packetsLost;
             }
 
-            var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
-            getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+            var bytes = result.packetsLost - getStatsResult.internal.video[sendrecvType].prevPacketsLost;
+            getStatsResult.internal.video[sendrecvType].prevPacketsLost = result.packetsLost;
 
-            getStatsResult.video.packetsLost = bytes.toFixed(0);
+            getStatsResult.video[sendrecvType].packetsLost = bytes.toFixed(0);
 
-            if (getStatsResult.video.packetsLost < 0) {
-                getStatsResult.video.packetsLost = 0;
+            if (getStatsResult.video[sendrecvType].packetsLost < 0) {
+                getStatsResult.video[sendrecvType].packetsLost = 0;
             }
         }
     };

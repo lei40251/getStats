@@ -44,6 +44,31 @@ getStatsParser.checkAudioTracks = function(result) {
         getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
     }
 
+
+    if (!!result.packetsReceived) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevPacketsReceived) {
+            getStatsResult.internal.audio.prevPacketsReceived = result.packetsReceived;
+        }
+
+        var packetsReceived = result.packetsReceived - getStatsResult.internal.audio.prevPacketsReceived;
+        getStatsResult.internal.audio.prevPacketsReceived = result.packetsReceived;
+
+        getStatsResult.audio.packetsReceived = packetsReceived;
+    }
+
+    if (!!result.packetsSent) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevPacketsSent) {
+            getStatsResult.internal.audio.prevPacketsSent = result.packetsSent;
+        }
+
+        var packetsSent = result.packetsSent - getStatsResult.internal.audio.prevPacketsSent;
+        getStatsResult.internal.audio.prevPacketsSent = result.packetsSent;
+
+        getStatsResult.audio.packetsSent = packetsSent;
+    }
+
     if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
         getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
     }
@@ -68,17 +93,17 @@ getStatsParser.checkAudioTracks = function(result) {
     // calculate packetsLost
     if (!!result.packetsLost) {
         var kilobytes = 0;
-        if (!getStatsResult.internal.audio.prevPacketsLost) {
-            getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+        if (!getStatsResult.internal.audio[sendrecvType].prevPacketsLost) {
+            getStatsResult.internal.audio[sendrecvType].prevPacketsLost = result.packetsLost;
         }
 
-        var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
-        getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+        var bytes = result.packetsLost - getStatsResult.internal.audio[sendrecvType].prevPacketsLost;
+        getStatsResult.internal.audio[sendrecvType].prevPacketsLost = result.packetsLost;
 
-        getStatsResult.audio.packetsLost = bytes.toFixed(0);
+        getStatsResult.audio[sendrecvType].packetsLost = bytes.toFixed(0);
 
-        if (getStatsResult.audio.packetsLost < 0) {
-            getStatsResult.audio.packetsLost = 0;
+        if (getStatsResult.audio[sendrecvType].packetsLost < 0) {
+            getStatsResult.audio[sendrecvType].packetsLost = 0;
         }
     }
 };
