@@ -1,125 +1,150 @@
 var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 
 if (typeof MediaStreamTrack === 'undefined') {
-    MediaStreamTrack = {}; // todo?
+  MediaStreamTrack = {}; // todo?
 }
 
 var systemNetworkType = ((navigator.connection || {}).type || 'unknown').toString().toLowerCase();
 
-var getStatsResult = {
-    encryption: 'sha-256',
-    audio: {
-        send: {
-            tracks: [],
-            codecs: [],
-            availableBandwidth: 0,
-            streams: 0,
-            framerateMean: 0,
-            bitrateMean: 0,
-            packetsLost: 0,
-        },
-        recv: {
-            tracks: [],
-            codecs: [],
-            availableBandwidth: 0,
-            streams: 0,
-            framerateMean: 0,
-            bitrateMean: 0,
-            packetsLost: 0,
-        },
-        bytesSent: 0,
-        bytesReceived: 0,
-        latency: 0,
-        packetsReceived: 0,
-        packetsSent: 0,
-    },
-    video: {
-        send: {
-            tracks: [],
-            codecs: [],
-            availableBandwidth: 0,
-            streams: 0,
-            framerateMean: 0,
-            bitrateMean: 0,
-            packetsLost: 0,
-        },
-        recv: {
-            tracks: [],
-            codecs: [],
-            availableBandwidth: 0,
-            streams: 0,
-            framerateMean: 0,
-            bitrateMean: 0,
-            packetsLost: 0,
-        },
-        bytesSent: 0,
-        bytesReceived: 0,
-        latency: 0,
-        packetsReceived: 0,
-        packetsSent: 0,
-    },
-    bandwidth: {
-        systemBandwidth: 0,
-        sentPerSecond: 0,
-        encodedPerSecond: 0,
-        helper: {
-            audioBytesSent: 0,
-            videoBytestSent: 0,
-            audioBytesRecv: 0,
-            videoBytesRecv: 0,
-        },
-        upSpeed: 0,
-        downSpeed: 0,
-    },
-    results: {},
-    connectionType: {
-        systemNetworkType: systemNetworkType,
-        systemIpAddress: '192.168.1.2',
-        local: {
-            candidateType: [],
-            transport: [],
-            ipAddress: [],
-            networkType: [],
-        },
-        remote: {
-            candidateType: [],
-            transport: [],
-            ipAddress: [],
-            networkType: [],
-        },
-    },
-    resolutions: {
-        send: {
-            width: 0,
-            height: 0,
-        },
-        recv: {
-            width: 0,
-            height: 0,
-        },
-    },
-    internal: {
-        audio: {
-            send: {},
-            recv: {},
-        },
-        video: {
-            send: {},
-            recv: {},
-        },
-        candidates: {},
-    },
-    nomore: function() {
-        nomore = true;
-    },
+var tmpParam = {
+  prevAudioBytesSent: 0,
+  prevVideoBytesSent: 0,
+  prevAudioBytesRecv: 0,
+  prevVideoBytesRecv: 0,
+  prevAudioPacketsSent: 0,
+  prevVideoPacketsSent: 0,
+  prevAudioPacketsLost: 0,
+  prevVideoPacketsLost: 0,
 };
 
-var getStatsParser = {
-    checkIfOfferer: function(result) {
-        if (result.type === 'googLibjingleSession') {
-            getStatsResult.isOfferer = result.googInitiator;
-        }
+var callStatsResult = {
+  bandwidth: {
+    uploadSpeed: 0,
+    downloadSpeed: 0,
+  },
+  video: {
+    send: {
+      bytesSent: 0,
+      width: null,
+      height: null,
+      jitter: 0,
+      packetsSent: 0,
+      packetsLost: 0,
+      totalPacketSendDelay: 0,
+      qualityLimitationReason: null,
+      // framesEncoded: 0,
     },
+    recv: {
+      bytesReceived: 0,
+      height: null,
+      width: null,
+      packetsReceived: 0,
+      pliCount: 0,
+      // framesDecoded: 0,
+    },
+  },
+  audio: {
+    send: {
+      bytesSent: 0,
+      jitter: 0,
+      packetsSent: 0,
+      packetsLost: 0,
+    },
+    recv: {
+      bytesReceived: 0,
+      packetsReceived: 0,
+    },
+  },
+  // resolutions: {
+  //   send: {
+  //     width: null,
+  //     height: null,
+  //     //   framesReceived: 0,
+  //     //   framesDecoded: 0,
+  //   },
+  //   recv: {
+  //     width: null,
+  //     height: null,
+  //     //   framesSent: 0,
+  //   },
+  // },
+  calculation: {
+    packetLoss: 0,
+    audioPacketLoss: 0,
+    videoPacketLoss: 0,
+  },
+  encryption: null,
+  datachannel: {
+    opened: 0,
+    closed: 0,
+  },
+  results: [],
 };
+
+var callStatsParser = {};
 
 var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+// toFixed兼容方法, 来源网络
+Number.prototype.toFixed = function(len) {
+  if (len > 20 || len < 0) {
+    throw new RangeError('toFixed() digits argument must be between 0 and 20');
+  }
+  // .123转为0.123
+  var number = Number(this);
+  if (isNaN(number) || number >= Math.pow(10, 21)) {
+    return number.toString();
+  }
+  if (typeof len == 'undefined' || len == 0) {
+    return Math.round(number).toString();
+  }
+  var result = number.toString(),
+    numberArr = result.split('.');
+
+  if (numberArr.length < 2) {
+    //整数的情况
+    return padNum(result);
+  }
+  var intNum = numberArr[0], //整数部分
+    deciNum = numberArr[1], //小数部分
+    lastNum = deciNum.substr(len, 1); //最后一个数字
+
+  if (deciNum.length == len) {
+    //需要截取的长度等于当前长度
+    return result;
+  }
+  if (deciNum.length < len) {
+    //需要截取的长度大于当前长度 1.3.toFixed(2)
+    return padNum(result);
+  }
+  //需要截取的长度小于当前长度，需要判断最后一位数字
+  result = intNum + '.' + deciNum.substr(0, len);
+  if (parseInt(lastNum, 10) >= 5) {
+    //最后一位数字大于5，要进位
+    var times = Math.pow(10, len); //需要放大的倍数
+    var changedInt = Number(result.replace('.', '')); //截取后转为整数
+    changedInt++; //整数进位
+    changedInt /= times; //整数转为小数，注：有可能还是整数
+    result = padNum(changedInt + '');
+  }
+  return result;
+  //对数字末尾加0
+  function padNum(num) {
+    var dotPos = num.indexOf('.');
+    if (dotPos === -1) {
+      //整数的情况
+      num += '.';
+      for (var i = 0; i < len; i++) {
+        num += '0';
+      }
+      return num;
+    } else {
+      //小数的情况
+      var need = len - (num.length - dotPos - 1);
+      for (var j = 0; j < need; j++) {
+        num += '0';
+      }
+      return num;
+    }
+  }
+};

@@ -1,38 +1,62 @@
-getStatsParser.inboundrtp = function(result) {
-    if (!isSafari) return;
-    if (result.type !== 'inbound-rtp') return;
+callStatsParser.inboundrtp = function(result) {
+  if (result.type !== 'inbound-rtp' && result.type !== 'remote-inbound-rtp') return;
 
-    var mediaType = result.mediaType || 'audio';
-    var sendrecvType = result.isRemote ? 'recv' : 'send';
+  var mediaType = result.mediaType || result.kind || 'audio';
 
-    if (!sendrecvType) return;
+  // 媒体编码
+  if (!!result.codecId) {
+    tmpParam['inbound-codecId-' + mediaType] = result.codecId;
+  }
 
-    if (!!result.bytesSent) {
-        var kilobytes = 0;
-        if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesSent) {
-            getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
-        }
+  // 收到数据包数量
+  if (!!result.packetsReceived) {
+    callStatsResult[mediaType]['recv']['packetsReceived'] = result.packetsReceived;
+  }
 
-        var bytes = result.bytesSent - getStatsResult.internal[mediaType][sendrecvType].prevBytesSent;
-        getStatsResult.internal[mediaType][sendrecvType].prevBytesSent = result.bytesSent;
+  // 丢包数量数量
+  if (!!result.packetsLost && result.type === 'remote-inbound-rtp') {
+    callStatsResult[mediaType]['send']['packetsLost'] = result.packetsLost;
+  }
 
-        kilobytes = bytes / 1024;
+  // 网络抖动,包括(Audio jitter, Video jitter, all jitter) 默认单位:秒
+  if (!!result.jitter && result.type === 'remote-inbound-rtp') {
+    callStatsResult[mediaType]['send']['jitter'] = result.jitter * 1000;
+  }
 
-        getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-        getStatsResult[mediaType].bytesSent = kilobytes.toFixed(1);
-    }
+  // 收到字节数
+  if (!!result.bytesReceived) {
+    callStatsResult[mediaType]['recv']['bytesReceived'] = result.bytesReceived;
+  }
 
-    if (!!result.bytesReceived) {
-        var kilobytes = 0;
-        if (!getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived) {
-            getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
-        }
+  /**
+   * Full Intra Request (FIR)
+   * 接收端已向发送者发送的完整帧内请求（FIR）数据包的数量
+   * 这是衡量流落后多久并必须跳过帧以追赶的频率的一种度量
+   */
+  if (!!result.firCount) {
+    callStatsResult[mediaType]['recv']['firCount'] = result.firCount;
+  }
 
-        var bytes = result.bytesReceived - getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived;
-        getStatsResult.internal[mediaType][sendrecvType].prevBytesReceived = result.bytesReceived;
+  /**
+   * Picture Loss Indication (PLI)
+   * 接收端向发送方发送图片丢失指示（PLI）数据包的次数
+   * PLI数据包表示已丢失一帧或多帧的一些已编码视频数据
+   */
+  if (!!result.pliCount) {
+    callStatsResult[mediaType]['recv']['pliCount'] = result.pliCount;
+  }
 
-        kilobytes = bytes / 1024;
-        // getStatsResult[mediaType][sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-        getStatsResult[mediaType].bytesReceived = kilobytes.toFixed(1);
-    }
+  /**
+   * Negative ACKnowledgement，也称为“Generic NACK”
+   * 接收端向发送方发送NACK数据包的次数
+   * 接收端告诉发送方它发送的一个或多个RTP数据包在传输中丢失
+   */
+  if (!!result.nackCount) {
+    callStatsResult[mediaType]['recv']['nackCount'] = result.nackCount;
+  }
+
+  // // 已成功解码的帧数
+  // if (!!result.framesDecoded) {
+  //   callStatsResult[mediaType]['recv']['framesDecoded'] = result.framesDecoded;
+  // }
 };

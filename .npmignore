@@ -2,9 +2,9 @@
 *
 
 # but not these files...
-!getStats.js
-!getStats.d.ts
-!getStats.min.js
+!callStats.js
+!callStats.d.ts
+!callStats.min.js
 !index.html
 !package.json
 !bower.json

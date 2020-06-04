@@ -99,51 +99,53 @@ function offererPeer(video_stream) {
 
     offererToAnswerer.srcObject = event.streams[0];
 
-    window.setInterval(function () {
-      var rt=[]
-      offerer.getStats(null).then((stats) => {
-        let statsOutput = '';
+    // window.setInterval(function () {
+    //   var rt=[]
+    //   offerer.callStats(null).then((stats) => {
+    //     let statsOutput = '';
 
-        stats.forEach((report) => {
-          rt.push(report)
-          // statsOutput +=
-          //   `<h2>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` + `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
+    //     stats.forEach((report) => {
+    //       rt.push(report)
+    //       // statsOutput +=
+    //       //   `<h2>Report: ${report.type}</h3>\n<strong>ID:</strong> ${report.id}<br>\n` + `<strong>Timestamp:</strong> ${report.timestamp}<br>\n`;
 
-          // // Now the statistics for this report; we intentially drop the ones we
-          // // sorted to the top above
+    //       // // Now the statistics for this report; we intentially drop the ones we
+    //       // // sorted to the top above
 
-          // Object.keys(report).forEach((statName) => {
-          //   if (statName !== 'id' && statName !== 'timestamp' && statName !== 'type') {
-          //     statsOutput[statName] = report[statName];
-          //   }
-          // });
-        });
+    //       // Object.keys(report).forEach((statName) => {
+    //       //   if (statName !== 'id' && statName !== 'timestamp' && statName !== 'type') {
+    //       //     statsOutput[statName] = report[statName];
+    //       //   }
+    //       // });
+    //     });
 
-        console.log(rt)
-        // document.querySelector(".stats-box").innerHTML = statsOutput;
-        // console.log(statsOutput);
-      });
-    }, 1000);
+    //     console.log(rt)
+    //     // document.querySelector(".stats-box").innerHTML = statsOutput;
+    //     // console.log(statsOutput);
+    //   });
+    // }, 1000);
 
     // if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-    //   getStats(
+    //   callStats(
     //     offerer,
     //     event.streams[0].getTracks()[1],
     //     function (result) {
-    //       previewGetStatsResult(offerer, result);
+    //       console.log('resut: ', result);
+    //       // previewCallStatsResult(offerer, result);
     //     },
-    //     1000,
+    //     1,
     //   );
     //   return;
     // }
 
-    // getStats(
-    //   offerer,
-    //   function (result) {
-    //     previewGetStatsResult(offerer, result);
-    //   },
-    //   1000,
-    // );
+    callStats(
+      offerer,
+      function (result) {
+        console.log('result: ', result);
+        // previewCallStatsResult(offerer, result);
+      },
+      1,
+    );
   };
 
   offerer.onicecandidate = function (event) {
@@ -175,25 +177,25 @@ function answererPeer(offer, video_stream) {
 
     answererToOfferer.srcObject = event.streams[0];
 
-    if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
-      getStats(
-        answerer,
-        event.streams[0].getTracks()[1],
-        function (result) {
-          previewGetStatsResult(answerer, result);
-        },
-        1000,
-      );
-      return;
-    }
+    // if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+    //   callStats(
+    //     answerer,
+    //     event.streams[0].getTracks()[1],
+    //     function (result) {
+    //       previewCallStatsResult(answerer, result);
+    //     },
+    //     1000,
+    //   );
+    //   return;
+    // }
 
-    getStats(
-      answerer,
-      function (result) {
-        previewGetStatsResult(answerer, result);
-      },
-      1000,
-    );
+    // callStats(
+    //   answerer,
+    //   function (result) {
+    //     previewCallStatsResult(answerer, result);
+    //   },
+    //   1000,
+    // );
   };
 
   answerer.onicecandidate = function (event) {
@@ -243,7 +245,7 @@ document.getElementById('btn-stop').onclick = function () {
   }
 };
 
-function previewGetStatsResult(peer, result) {
+function previewCallStatsResult(peer, result) {
   // console.log(result);
   if (STOP_GETSTATS) {
     result.nomore();
@@ -319,7 +321,7 @@ function previewGetStatsResult(peer, result) {
     result.nomore();
   }
 
-  window.getStatsResult = result;
+  window.callStatsResult = result;
 }
 
 if (typeof window.InstallTrigger !== 'undefined') {

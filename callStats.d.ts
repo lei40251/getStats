@@ -1,5 +1,5 @@
-declare module 'getstats' {
-  interface GetStatsBandwidth {
+declare module 'callstats' {
+  interface CallStatsBandwidth {
     speed: number;
     systemBandwidth: number;
     sentPerSecond: number;
@@ -19,7 +19,7 @@ declare module 'getstats' {
     googTransmitBitrate: number;
   }
 
-  interface GetStatsConnectionInfo {
+  interface CallStatsConnectionInfo {
     tracks: string[];
     codecs: string[];
     availableBandwidth: string;
@@ -28,55 +28,55 @@ declare module 'getstats' {
     bitrateMean: number;
   }
 
-  interface GetStatsConnectionStream {
-    send: GetStatsConnectionInfo;
-    recv: GetStatsConnectionInfo;
+  interface CallStatsConnectionStream {
+    send: CallStatsConnectionInfo;
+    recv: CallStatsConnectionInfo;
     bytesSent: number;
     bytesReceived: number;
     latency: number;
     packetsLost: number;
   }
 
-  interface GetStatsNetworkInfo {
+  interface CallStatsNetworkInfo {
     candidateType: string[];
     transport: string[];
     ipAddress: string[];
     networkType: string[];
   }
 
-  interface GetStatsConnectionType {
+  interface CallStatsConnectionType {
     systemNetworkType: string;
     systemIpAddress: string[];
-    local: GetStatsNetworkInfo;
-    remote: GetStatsNetworkInfo;
+    local: CallStatsNetworkInfo;
+    remote: CallStatsNetworkInfo;
     transport: string;
   }
 
-  interface GetStatsResolution {
+  interface CallStatsResolution {
     width: string;
     height: string;
   }
 
-  interface GetStatsResolutions {
-    send: GetStatsResolution;
-    recv: GetStatsResolution;
+  interface CallStatsResolutions {
+    send: CallStatsResolution;
+    recv: CallStatsResolution;
   }
 
-  export interface GetStatsResult {
+  export interface CallStatsResult {
     datachannel: {
       state: 'open' | 'close';
     };
     isOfferer: boolean;
     encryption: string;
-    bandwidth: GetStatsBandwidth;
-    audio: GetStatsConnectionStream;
-    video: GetStatsConnectionStream;
-    connectionType: GetStatsConnectionType;
-    resolutions: GetStatsResolutions;
+    bandwidth: CallStatsBandwidth;
+    audio: CallStatsConnectionStream;
+    video: CallStatsConnectionStream;
+    connectionType: CallStatsConnectionType;
+    resolutions: CallStatsResolutions;
     results: any[];
 
     nomore: () => void;
   }
 
-  export default function getstats(rtc: RTCPeerConnection, callback: (result: GetStatsResult) => void, interval?: number): void;
+  export default function callstats(rtc: RTCPeerConnection, callback: (result: CallStatsResult) => void, interval?: number): void;
 }

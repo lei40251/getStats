@@ -1,13 +1,13 @@
-getStatsLooper();
+callStatsLooper();
 
 };
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
-    module.exports = getStats;
+  module.exports = callStats;
 }
 
 if (typeof define === 'function' && define.amd) {
-    define('getStats', [], function() {
-        return getStats;
-    });
+  define('callStats', [], function() {
+    return callStats;
+  });
 }
