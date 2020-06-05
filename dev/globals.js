@@ -15,6 +15,7 @@ var tmpParam = {
   prevVideoPacketsSent: 0,
   prevAudioPacketsLost: 0,
   prevVideoPacketsLost: 0,
+  prevFramesSent: 0,
 };
 
 var callStatsResult = {
@@ -32,6 +33,7 @@ var callStatsResult = {
       packetsLost: 0,
       totalPacketSendDelay: 0,
       qualityLimitationReason: null,
+      framesSent: 0,
       // framesEncoded: 0,
     },
     recv: {
@@ -40,6 +42,7 @@ var callStatsResult = {
       width: null,
       packetsReceived: 0,
       pliCount: 0,
+      framesReceived: 0,
       // framesDecoded: 0,
     },
   },
@@ -55,23 +58,11 @@ var callStatsResult = {
       packetsReceived: 0,
     },
   },
-  // resolutions: {
-  //   send: {
-  //     width: null,
-  //     height: null,
-  //     //   framesReceived: 0,
-  //     //   framesDecoded: 0,
-  //   },
-  //   recv: {
-  //     width: null,
-  //     height: null,
-  //     //   framesSent: 0,
-  //   },
-  // },
   calculation: {
     packetLoss: 0,
     audioPacketLoss: 0,
     videoPacketLoss: 0,
+    FPS: 0,
   },
   encryption: null,
   datachannel: {

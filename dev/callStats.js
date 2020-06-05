@@ -77,6 +77,10 @@ function callStatsLooper() {
       callStatsResult.calculation.videoPacketLoss :
       callStatsResult.calculation.audioPacketLoss;
 
+    // 帧率
+    callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
+    tmpParam.prevFramesSent = callStatsResult.video.send.framesSent;
+
     callback(callStatsResult);
 
     // second argument checks to see, if target-user is still connected.

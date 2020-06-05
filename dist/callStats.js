@@ -1,7 +1,7 @@
 'use strict';
 
 // callStats v1.2.0
-// Last time updated: 2020-06-04 10:16:50 AM UTC
+// Last time updated: 2020-06-05 5:00:46 AM UTC
 
 var callStats = function(mediaStreamTrack, callback, interval) {
 
@@ -125,6 +125,7 @@ var callStats = function(mediaStreamTrack, callback, interval) {
     prevVideoPacketsSent: 0,
     prevAudioPacketsLost: 0,
     prevVideoPacketsLost: 0,
+    prevFramesSent: 0,
   };
 
   var callStatsResult = {
@@ -142,6 +143,7 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         packetsLost: 0,
         totalPacketSendDelay: 0,
         qualityLimitationReason: null,
+        framesSent: 0,
         // framesEncoded: 0,
       },
       recv: {
@@ -150,6 +152,7 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         width: null,
         packetsReceived: 0,
         pliCount: 0,
+        framesReceived: 0,
         // framesDecoded: 0,
       },
     },
@@ -165,23 +168,11 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         packetsReceived: 0,
       },
     },
-    // resolutions: {
-    //   send: {
-    //     width: null,
-    //     height: null,
-    //     //   framesReceived: 0,
-    //     //   framesDecoded: 0,
-    //   },
-    //   recv: {
-    //     width: null,
-    //     height: null,
-    //     //   framesSent: 0,
-    //   },
-    // },
     calculation: {
       packetLoss: 0,
       audioPacketLoss: 0,
       videoPacketLoss: 0,
+      FPS: 0,
     },
     encryption: null,
     datachannel: {
@@ -351,6 +342,10 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         callStatsResult.calculation.videoPacketLoss > callStatsResult.calculation.audiooPacketLoss ?
         callStatsResult.calculation.videoPacketLoss :
         callStatsResult.calculation.audioPacketLoss;
+
+      // 帧率
+      callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
+      tmpParam.prevFramesSent = callStatsResult.video.send.framesSent;
 
       callback(callStatsResult);
 
@@ -537,33 +532,33 @@ var callStats = function(mediaStreamTrack, callback, interval) {
   callStatsParser.track = function(result) {
     if (result.type !== 'track') return;
 
-    var sendrecvType = result.remoteSource === true ? 'send' : 'recv';
+    var sendrecvType = result.remoteSource === true ? 'recv' : 'send';
 
     // 发送接收视频的分辨率
-    if (result.frameWidth && result.frameHeight) {
+    if (!!result.frameWidth && !!result.frameHeight) {
       callStatsResult.video[sendrecvType].width = result.frameWidth;
       callStatsResult.video[sendrecvType].height = result.frameHeight;
     }
 
-    // // 发送的帧数
-    // if (result.framesSent) {
-    //   callStatsResult.video[sendrecvType].framesSent = result.framesSent;
-    // }
+    // 发送的帧数
+    if (!!result.framesSent) {
+      callStatsResult.video[sendrecvType].framesSent = result.framesSent;
+    }
 
-    // // 收到的帧数
-    // if (result.framesReceived) {
-    //   callStatsResult.video[sendrecvType].framesReceived = result.framesReceived;
-    // }
+    // 收到的帧数
+    if (result.framesReceived) {
+      callStatsResult.video[sendrecvType].framesReceived = result.framesReceived;
+    }
 
     // // 解码的帧数
     // if (result.framesDecoded) {
     //   callStatsResult.video[sendrecvType].framesDecoded = result.framesDecoded;
     // }
 
-    // // 丢弃的帧数
-    // if (result.framesDropped) {
-    //   callStatsResult.video[sendrecvType].framesDropped = result.framesDropped;
-    // }
+    // 丢弃的帧数
+    if (result.framesDropped) {
+      callStatsResult.video[sendrecvType].framesDropped = result.framesDropped;
+    }
   };
 
   callStatsLooper();
