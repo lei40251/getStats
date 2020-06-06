@@ -28,11 +28,11 @@
           <p>resolutionUp: <i>${result.video.send.width} x ${result.video.send.height}</i></p>
           <p>resolutionDn: <i>${result.video.recv.width} x ${result.video.recv.height}</i></p>
           <p>audio jitter: <i>${Math.floor(result.audio.send.jitter * 100) / 10}ms</i></p>
-          <p>audio loss: <i>${Math.floor(result.calculation.audioPacketLoss * 1000) / 10}%</i></p>
+          <p>send audio loss: <i>${Math.floor(result.calculation.audioPacketLoss * 1000) / 10}%</i></p>
           <p>video jitter: <i>${Math.floor(result.video.send.jitter * 100) / 10}ms</i></p>
-          <p>video loss: <i>${Math.floor(result.calculation.videoPacketLoss * 1000) / 10}%</i></p>
+          <p>send video loss: <i>${Math.floor(result.calculation.videoPacketLoss * 1000) / 10}%</i></p>
           <p>quality reason: <i>${result.video.send.qualityLimitationReason}</i></p>
-          <p>fps: <i>${result.calculation.FPS}</i></p>
+          <p>send fps: <i>${result.calculation.FPS}</i></p>
         `;
       document.querySelector('#debug').innerHTML = debug;
     });

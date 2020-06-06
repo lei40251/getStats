@@ -167,13 +167,24 @@
         </button>
       </div>
     </div>
+
+    <span>
+      <div id="noServiceModal" class="modal">
+        <div class="modal-content">
+          <p>您当前的浏览器不支持WebRTC音视频通信，请使用<span id="browser"></span>浏览器进行访问，谢谢！</p>
+        </div>
+      </div>
+    </span>
     <script src="./js/jquery-3.3.1.min.js"></script>
     <script src="./js/adapter.min.js"></script>
     <script src="./js/ua-parser.min.js"></script>
     <script src="./js/detect.min.js"></script>
-    <script src="./js/flyinn-web-demo.min.js"></script>
     <script src="./js/materialize.min.js"></script>
     <script>
+      M.Modal.init(document.querySelectorAll('#noServiceModal'), {
+        dismissible: false,
+        opacity: 1,
+      });
       var browserSupport = checkSystemRequirements();
       var ERRORCODE = {
         S90201: 'SYSTEM_NAME_ERROR',
@@ -186,9 +197,24 @@
         S90904: 'SCREENSHARE_ERROR',
       };
       if (browserSupport !== true) {
-        alert('请注意，当前浏览器不支持WebRTC，' + ERRORCODE['S' + browserSupport]);
+        var OS = ua.getOS();
+        switch (OS) {
+          case 'Windows':
+          case 'Android':
+            $('#browser').html('Chrome');
+            break;
+          case 'iOS':
+          case 'Mac OS':
+            $('#browser').html('Safari');
+            break;
+          default:
+            $('#browser').html('Chrome');
+            break;
+        }
+        $('#noServiceModal').modal('open');
       }
     </script>
+    <script src="./js/flyinn-web-demo.min.js"></script>
     <script src="./js/callStats.min.js"></script>
     <script src="./js/vconsole.min.js"></script>
     <script src="./js/config.js"></script>
