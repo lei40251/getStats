@@ -39,7 +39,7 @@
   FlyInnWeb.debug.disable('FlyInnWeb:*');
   // var box = tapNode("body");
   // box.on("longtap", function () {
-  var vConsole = new VConsole();
+  // var vConsole = new VConsole();
   // }, box)
 
   M.FormSelect.init(document.querySelectorAll('select'));

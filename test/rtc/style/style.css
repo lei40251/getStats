@@ -118,8 +118,8 @@ body {
 
 .normal .local > video,
 .change .remote > video {
-  width: 100%;
-  max-width: 480px;
+  max-width: 100%;
+  /* max-width: 480px; */
   height: auto;
   object-fit: contain;
   object-position: center center;

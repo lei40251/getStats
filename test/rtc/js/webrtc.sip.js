@@ -109,8 +109,8 @@
 
       sender.track.applyConstraints({
         frameRate: { max: 30 },
-        height: { min: 480, max: 720, ideal: 720 },
-        width: { min: 640, max: 960, ideal: 960 },
+        height: { min: 480, ideal: 480 },
+        width: { min: 640, ideal: 640 },
       });
 
       if (sender.track.kind == 'video') {

@@ -168,12 +168,30 @@
       </div>
     </div>
     <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/adapter.min.js"></script>
+    <script src="./js/ua-parser.min.js"></script>
+    <script src="./js/detect.min.js"></script>
     <script src="./js/flyinn-web-demo.min.js"></script>
     <script src="./js/materialize.min.js"></script>
+    <script>
+      var browserSupport = checkSystemRequirements();
+      var ERRORCODE = {
+        S90201: 'SYSTEM_NAME_ERROR',
+        S90202: 'SYSTEM_VER_ERROR',
+        S90801: 'BROWSER_NAME_ERROR',
+        S90802: 'BROWSER_VER_ERROR',
+        S90901: 'WEBSOCKET_SUPPORT_ERROR',
+        S90902: 'WEBRTC_SUPPORT_ERROR',
+        S90903: 'SWITCH_CAMERA_ERROR',
+        S90904: 'SCREENSHARE_ERROR',
+      };
+      if (browserSupport !== true) {
+        alert('请注意，当前浏览器不支持WebRTC，' + ERRORCODE['S' + browserSupport]);
+      }
+    </script>
     <script src="./js/callStats.min.js"></script>
     <script src="./js/vconsole.min.js"></script>
     <script src="./js/config.js"></script>
-
     <script src="./js/common.js"></script>
     <script src="./js/webrtc.sip.js"></script>
     <script src="./js/app.js"></script>
