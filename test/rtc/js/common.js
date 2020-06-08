@@ -14,40 +14,45 @@
   var common = {
     // get地址栏参数
     handleGetQuery: function (name) {
-      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+      var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
       var r = window.location.search.substr(1).match(reg);
       if (r != null) return unescape(r[2]);
       return null;
     },
     changePage: function (page) {
+      try {
+        document.querySelector('#toast-container').classList.remove('hide');
+      } catch (error) {
+        console.log(error);
+      }
       switch (page) {
-        case "login":
-          loginPage.parentNode.childNodes.forEach(ele => {
+        case 'login':
+          loginPage.parentNode.childNodes.forEach((ele) => {
             if (ele.nodeName == 'DIV') {
               ele.classList.add('hide');
             }
-          })
+          });
           loginPage.classList.remove('hide');
           break;
-        case "main":
-          mainPage.parentNode.childNodes.forEach(ele => {
+        case 'main':
+          mainPage.parentNode.childNodes.forEach((ele) => {
             if (ele.nodeName == 'DIV') {
               ele.classList.add('hide');
             }
-          })
+          });
           mainPage.classList.remove('hide');
           registeredUser.innerText = sessionStorage.getItem('account');
           break;
-        case "calling":
-          callingPage.parentNode.childNodes.forEach(ele => {
+        case 'calling':
+          callingPage.parentNode.childNodes.forEach((ele) => {
             if (ele.nodeName == 'DIV') {
               ele.classList.add('hide');
             }
-          })
+          });
           callingPage.classList.remove('hide');
           break;
-        case "session":
-          sessionPage.parentNode.childNodes.forEach(ele => {
+        case 'session':
+          sessionPage.parentNode.childNodes.forEach((ele) => {
             if (ele.nodeName == 'DIV') {
               ele.classList.add('hide');
             }
@@ -56,13 +61,13 @@
           document.querySelector('#toggle-microphone').classList.remove('close-microphone');
           sessionPage.classList.remove('hide');
           break;
-        case "incoming":
-          incomingPage.parentNode.childNodes.forEach(ele => {
+        case 'incoming':
+          incomingPage.parentNode.childNodes.forEach((ele) => {
             if (ele.nodeName == 'DIV') {
               ele.classList.add('hide');
             }
-          })
-          incomingPage.classList.remove('hide')
+          });
+          incomingPage.classList.remove('hide');
           break;
       }
     },
@@ -91,16 +96,15 @@
     //   `, '');
     //   return sdp;
     // }
-  }
+  };
 
   /* Tap */
   var TOUCHSTART, TOUCHEND;
-  if (typeof (window.ontouchstart) != 'undefined') {
+  if (typeof window.ontouchstart != 'undefined') {
     TOUCHSTART = 'touchstart';
     TOUCHEND = 'touchend';
     TOUCHMOVE = 'touchmove';
-
-  } else if (typeof (window.onmspointerdown) != 'undefined') {
+  } else if (typeof window.onmspointerdown != 'undefined') {
     TOUCHSTART = 'MSPointerDown';
     TOUCHEND = 'MSPointerUp';
     TOUCHMOVE = 'MSPointerMove';
@@ -131,13 +135,15 @@
   }
 
   function longTap(node, callback, scope) {
-    var x, y, startTime = 0,
+    var x,
+      y,
+      startTime = 0,
       endTime = 0,
       in_dis = false;
     node.addEventListener(TOUCHSTART, function (e) {
       x = e.touches[0].pageX;
       y = e.touches[0].pageY;
-      startTime = (new Date()).getTime();
+      startTime = new Date().getTime();
     });
     node.addEventListener(TOUCHEND, function (e) {
       e.stopPropagation();
@@ -149,7 +155,7 @@
       } else {
         in_dis = false;
       }
-      endTime = (new Date()).getTime();
+      endTime = new Date().getTime();
       if (endTime - startTime > 300 && in_dis) {
         callback.apply(scope, arguments);
       }
@@ -173,7 +179,7 @@
       });
     }
     return this;
-  }
+  };
   var tapNode = function (selector) {
     var node = document.querySelector(selector);
     if (node) {
@@ -181,10 +187,10 @@
     } else {
       return null;
     }
-  }
+  };
 
   window.tapNode = tapNode;
 
   App.common = common;
   window.App = App;
-})(window)
+})(window);

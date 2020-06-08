@@ -33,11 +33,11 @@
           <form action="./index.html" method="GET">
             <div class="card-content">
               <div class="input-field">
-                <input id="account" type="text" required name="account" class="validate" />
+                <input id="account" type="text" required name="account" autocomplete="new-password" autofocus="true" class="validate" />
                 <label for="account">用户名</label>
               </div>
               <div class="input-field">
-                <input id="password" type="password" name="password" autocomplete="false" class="validate" />
+                <input id="password" type="password" name="password" autocomplete="new-password" class="validate" />
                 <label for="password">密码</label>
               </div>
             </div>
@@ -54,7 +54,7 @@
           <div class="card-content">
             <h4 class="card-title center-align"><span id="registered-user" class="red-text"></span> <small>注册成功</small></h4>
             <div class="input-field row col s12">
-              <input id="linkman" type="text" required name="linkman" class="validate" />
+              <input id="linkman" type="text" required name="linkman" autocomplete="name" class="validate" />
               <label for="linkman">请输入客服号码</label>
             </div>
           </div>
@@ -125,31 +125,65 @@
       </div>
     </div>
     <div id="session-page" class="session-page row hide">
-      <div class="normal video-container">
-        <div class="remote">
-          <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
+      <div>
+        <div class="normal video-container">
+          <div class="remote">
+            <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
+            <p id="caller" class="linkman-title">9003</p>
+          </div>
+          <div class="local">
+            <video autoplay playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5" id="remoteVideo"></video>
+            <p class="linkman-title">我</p>
+          </div>
         </div>
-        <div class="local">
-          <video autoplay playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5" id="remoteVideo"></video>
+        <div class="action col s12 m8 offset-m2 l4 offset-l4">
+          <button id="toggle-camera" class="btn-floating waves-effect waves-light indigo darken-1">
+            <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
+          </button>
+          <button id="change-camera" class="btn-floating waves-effect waves-light green"><i class="material-icons">switch_video</i></button>
+          <button id="hangup" class="btn-floating waves-effect waves-light red"><i class="material-icons">call_end</i></button>
+          <button id="toggle-microphone" class="btn-floating btn-flat waves-effect waves-light indigo darken-1">
+            <i class="material-icons mic-on">mic</i>
+            <i class="material-icons mic-off">mic_off</i>
+          </button>
+          <button id="volume" class="btn-floating modal-trigger waves-effect waves-light teal">
+            <i class="material-icons vol-on">volume_up</i>
+            <i class="material-icons vol-off">volume_off</i>
+          </button>
+          <button id="featured" class="btn-floating modal-trigger waves-effect waves-light teal">
+            <i class="material-icons vol-off">featured_video</i>
+          </button>
         </div>
       </div>
-      <div class="action col s12 m8 offset-m2 l4 offset-l4">
-        <button id="toggle-camera" class="btn-floating waves-effect waves-light indigo darken-1">
-          <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
-        </button>
-        <button id="change-camera" class="btn-floating waves-effect waves-light green"><i class="material-icons">switch_video</i></button>
-        <button id="hangup" class="btn-floating waves-effect waves-light red"><i class="material-icons">call_end</i></button>
-        <button id="toggle-microphone" class="btn-floating btn-flat waves-effect waves-light indigo darken-1">
-          <i class="material-icons mic-on">mic</i>
-          <i class="material-icons mic-off">mic_off</i>
-        </button>
-        <button id="volume" class="btn-floating modal-trigger waves-effect waves-light teal">
-          <i class="material-icons vol-on">volume_up</i>
-          <i class="material-icons vol-off">volume_off</i>
-        </button>
-        <button id="featured" class="btn-floating modal-trigger waves-effect waves-light teal">
-          <i class="material-icons vol-off">featured_video</i>
-        </button>
+      <div class="row">
+        <p>视频参数选择</p>
+        <div class="input-field col s4">
+          <select>
+            <option value="low">360p</option>
+            <option value="medium">480p</option>
+            <option value="high">720p</option>
+          </select>
+          <label>分辨率</label>
+        </div>
+        <div class="input-field col s4">
+          <select>
+            <option value="low">10fps</option>
+            <option value="medium">15fps</option>
+            <option value="high">20fps</option>
+            <option value="vhigh">25fps</option>
+          </select>
+          <label>帧率</label>
+        </div>
+        <div class="input-field col s4">
+          <select>
+            <option value="low">512k</option>
+            <option value="medium">1M</option>
+            <option value="high">1.5M</option>
+            <option value="vhigh">2M</option>
+          </select>
+          <label>带宽</label>
+        </div>
+        <a class="waves-effect waves-light fluid btn">确定</a>
       </div>
       <div id="debug" class="debug col s12 m8 l4"></div>
     </div>
@@ -167,57 +201,13 @@
         </button>
       </div>
     </div>
-
-    <span>
-      <div id="noServiceModal" class="modal">
-        <div class="modal-content">
-          <p>您当前的浏览器不支持WebRTC音视频通信，请使用<span id="browser"></span>浏览器进行访问，谢谢！</p>
-        </div>
-      </div>
-    </span>
     <script src="./js/jquery-3.3.1.min.js"></script>
-    <script src="./js/adapter.min.js"></script>
-    <script src="./js/ua-parser.min.js"></script>
-    <script src="./js/detect.min.js"></script>
-    <script src="./js/materialize.min.js"></script>
-    <script>
-      M.Modal.init(document.querySelectorAll('#noServiceModal'), {
-        dismissible: false,
-        opacity: 1,
-      });
-      var browserSupport = checkSystemRequirements();
-      var ERRORCODE = {
-        S90201: 'SYSTEM_NAME_ERROR',
-        S90202: 'SYSTEM_VER_ERROR',
-        S90801: 'BROWSER_NAME_ERROR',
-        S90802: 'BROWSER_VER_ERROR',
-        S90901: 'WEBSOCKET_SUPPORT_ERROR',
-        S90902: 'WEBRTC_SUPPORT_ERROR',
-        S90903: 'SWITCH_CAMERA_ERROR',
-        S90904: 'SCREENSHARE_ERROR',
-      };
-      if (browserSupport !== true) {
-        var OS = ua.getOS();
-        switch (OS) {
-          case 'Windows':
-          case 'Android':
-            $('#browser').html('Chrome');
-            break;
-          case 'iOS':
-          case 'Mac OS':
-            $('#browser').html('Safari');
-            break;
-          default:
-            $('#browser').html('Chrome');
-            break;
-        }
-        $('#noServiceModal').modal('open');
-      }
-    </script>
     <script src="./js/flyinn-web-demo.min.js"></script>
-    <script src="./js/callStats.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script src="../../dist/callStats.min.js"></script>
     <script src="./js/vconsole.min.js"></script>
     <script src="./js/config.js"></script>
+
     <script src="./js/common.js"></script>
     <script src="./js/webrtc.sip.js"></script>
     <script src="./js/app.js"></script>

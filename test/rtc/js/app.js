@@ -39,7 +39,7 @@
   FlyInnWeb.debug.disable('FlyInnWeb:*');
   // var box = tapNode("body");
   // box.on("longtap", function () {
-  // var vConsole = new VConsole();
+  var vConsole = new VConsole();
   // }, box)
 
   M.FormSelect.init(document.querySelectorAll('select'));
@@ -530,6 +530,7 @@
     M.toast({
       html: '该不支持 WebRTC，请更换或升级浏览器',
     });
+    return;
   } else {
     start();
   }

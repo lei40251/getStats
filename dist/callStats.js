@@ -1,7 +1,7 @@
 'use strict';
 
 // callStats v1.2.0
-// Last time updated: 2020-06-08 8:13:39 AM UTC
+// Last time updated: 2020-06-08 10:14:09 AM UTC
 
 var callStats = function(mediaStreamTrack, callback, interval) {
 
@@ -135,6 +135,8 @@ var callStats = function(mediaStreamTrack, callback, interval) {
     },
     video: {
       roundTripTime: 0,
+      framesSent: 0,
+      framesReceived: 0,
       send: {
         bytesSent: 0,
         width: null,
@@ -144,7 +146,6 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         packetsLost: 0,
         totalPacketSendDelay: 0,
         qualityLimitationReason: null,
-        framesSent: 0,
         // framesEncoded: 0,
       },
       recv: {
@@ -154,7 +155,6 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         packetsReceived: 0,
         packetsLost: 0,
         pliCount: 0,
-        framesReceived: 0,
         // framesDecoded: 0,
       },
     },
@@ -179,7 +179,8 @@ var callStats = function(mediaStreamTrack, callback, interval) {
       recvPacketLoss: 0,
       audioRecvPacketLoss: 0,
       videoRecvPacketLoss: 0,
-      FPS: 0,
+      sendFPS: 0,
+      recvFPS: 0,
     },
     encryption: null,
     datachannel: {
@@ -369,8 +370,10 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         callStatsResult.calculation.audioRecvPacketLoss;
 
       // 帧率
-      callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
-      tmpParam.prevFramesSent = callStatsResult.video.send.framesSent;
+      callStatsResult.calculation.sendFPS = Math.floor((callStatsResult.video.framesSent - tmpParam.prevFramesSent) / (interval || 1));
+      tmpParam.prevFramesSent = callStatsResult.video.framesSent;
+      callStatsResult.calculation.recvFPS = Math.floor((callStatsResult.video.framesReceived - tmpParam.prevFramesRecv) / (interval || 1));
+      tmpParam.prevFramesRecv = callStatsResult.video.framesReceived;
 
       callback(callStatsResult);
 
@@ -576,12 +579,12 @@ var callStats = function(mediaStreamTrack, callback, interval) {
 
     // 发送的帧数
     if (!!result.framesSent) {
-      callStatsResult.video[sendrecvType].framesSent = result.framesSent;
+      callStatsResult.video.framesSent = result.framesSent;
     }
 
     // 收到的帧数
     if (result.framesReceived) {
-      callStatsResult.video[sendrecvType].framesReceived = result.framesReceived;
+      callStatsResult.video.framesReceived = result.framesReceived;
     }
 
     // // 解码的帧数

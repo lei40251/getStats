@@ -11,12 +11,12 @@ callStatsParser.track = function(result) {
 
   // 发送的帧数
   if (!!result.framesSent) {
-    callStatsResult.video[sendrecvType].framesSent = result.framesSent;
+    callStatsResult.video.framesSent = result.framesSent;
   }
 
   // 收到的帧数
   if (result.framesReceived) {
-    callStatsResult.video[sendrecvType].framesReceived = result.framesReceived;
+    callStatsResult.video.framesReceived = result.framesReceived;
   }
 
   // // 解码的帧数

@@ -96,8 +96,10 @@ function callStatsLooper() {
       callStatsResult.calculation.audioRecvPacketLoss;
 
     // 帧率
-    callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
-    tmpParam.prevFramesSent = callStatsResult.video.send.framesSent;
+    callStatsResult.calculation.sendFPS = Math.floor((callStatsResult.video.framesSent - tmpParam.prevFramesSent) / (interval || 1));
+    tmpParam.prevFramesSent = callStatsResult.video.framesSent;
+    callStatsResult.calculation.recvFPS = Math.floor((callStatsResult.video.framesReceived - tmpParam.prevFramesRecv) / (interval || 1));
+    tmpParam.prevFramesRecv = callStatsResult.video.framesReceived;
 
     callback(callStatsResult);
 
