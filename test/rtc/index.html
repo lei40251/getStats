@@ -171,7 +171,7 @@
     <span>
       <div id="noServiceModal" class="modal">
         <div class="modal-content">
-          <p>您当前的浏览器不支持WebRTC音视频通信，请使用<span id="browser"></span>浏览器进行访问，谢谢！</p>
+          <p>当前您的浏览器不支持H5 WebRTC实时音视频通信，Android和Windows系统建议使用Chrome浏览器，iOS和macOS系统建议使用Safari浏览器</p>
         </div>
       </div>
     </span>
@@ -197,20 +197,20 @@
         S90904: 'SCREENSHARE_ERROR',
       };
       if (browserSupport !== true) {
-        var OS = ua.getOS();
-        switch (OS) {
-          case 'Windows':
-          case 'Android':
-            $('#browser').html('Chrome');
-            break;
-          case 'iOS':
-          case 'Mac OS':
-            $('#browser').html('Safari');
-            break;
-          default:
-            $('#browser').html('Chrome');
-            break;
-        }
+        // var OS = ua.getOS();
+        // switch (OS) {
+        //   case 'Windows':
+        //   case 'Android':
+        //     $('#browser').html('Chrome');
+        //     break;
+        //   case 'iOS':
+        //   case 'Mac OS':
+        //     $('#browser').html('Safari');
+        //     break;
+        //   default:
+        //     $('#browser').html('Chrome');
+        //     break;
+        // }
         $('#noServiceModal').modal('open');
       }
     </script>
