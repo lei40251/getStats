@@ -59,27 +59,47 @@ function callStatsLooper() {
 
     // 音频丢包率
     if (!callStatsResult.audio.send.packetsLost) {
-      callStatsResult.calculation.audioPacketLoss = 0;
+      callStatsResult.calculation.audioSendPacketLoss = 0;
     } else {
-      callStatsResult.calculation.audioPacketLoss = callStatsResult.audio.send.packetsLost / callStatsResult.audio.send.packetsSent;
+      callStatsResult.calculation.audioSendPacketLoss = callStatsResult.audio.send.packetsLost / callStatsResult.audio.send.packetsSent;
+    }
+
+    if (!callStatsResult.audio.recv.packetsLost) {
+      callStatsResult.calculation.audioRecvPacketLoss = 0;
+    } else {
+      callStatsResult.calculation.audioRecvPacketLoss =
+        callStatsResult.audio.recv.packetsLost / (callStatsResult.audio.recv.packetsReceived + callStatsResult.audio.recv.packetsLost);
     }
 
     // 视频丢包率
     if (!callStatsResult.video.send.packetsLost) {
-      callStatsResult.calculation.videoPacketLoss = 0;
+      callStatsResult.calculation.videoSendPacketLoss = 0;
     } else {
-      callStatsResult.calculation.videoPacketLoss = callStatsResult.video.send.packetsLost / callStatsResult.video.send.packetsSent;
+      callStatsResult.calculation.videoSendPacketLoss = callStatsResult.video.send.packetsLost / callStatsResult.video.send.packetsSent;
+    }
+    if (!callStatsResult.video.recv.packetsLost) {
+      callStatsResult.calculation.videoRecvPacketLoss = 0;
+    } else {
+      callStatsResult.calculation.videoRecvPacketLoss =
+        callStatsResult.video.recv.packetsLost / (callStatsResult.video.recv.packetsReceived + callStatsResult.video.recv.packetsLost);
     }
 
     // 丢包率
-    callStatsResult.calculation.packetLoss =
-      callStatsResult.calculation.videoPacketLoss > callStatsResult.calculation.audiooPacketLoss ?
-      callStatsResult.calculation.videoPacketLoss :
-      callStatsResult.calculation.audioPacketLoss;
+    callStatsResult.calculation.sendPacketLoss =
+      callStatsResult.calculation.videoSendPacketLoss > callStatsResult.calculation.audioSendPacketLoss ?
+      callStatsResult.calculation.videoSendPacketLoss :
+      callStatsResult.calculation.audioSendPacketLoss;
+
+    callStatsResult.calculation.recvPacketLoss =
+      callStatsResult.calculation.videoRecvPacketLoss > callStatsResult.calculation.audioRecvPacketLoss ?
+      callStatsResult.calculation.videoRecvPacketLoss :
+      callStatsResult.calculation.audioRecvPacketLoss;
 
     // 帧率
-    callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
-    tmpParam.prevFramesSent = callStatsResult.video.send.framesSent;
+    callStatsResult.calculation.sendFPS = Math.floor((callStatsResult.video.framesSent - tmpParam.prevFramesSent) / (interval || 1));
+    tmpParam.prevFramesSent = callStatsResult.video.framesSent;
+    callStatsResult.calculation.recvFPS = Math.floor((callStatsResult.video.framesReceived - tmpParam.prevFramesRecv) / (interval || 1));
+    tmpParam.prevFramesRecv = callStatsResult.video.framesReceived;
 
     callback(callStatsResult);
 

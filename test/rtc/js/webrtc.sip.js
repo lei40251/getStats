@@ -22,17 +22,23 @@
   // RTCPeerConnection stats
   function _getPeerStats(peer) {
     callStats(peer, function (result) {
+      console.log(result);
       var debug = `
           <p>upload: <i>${Math.floor(result.bandwidth.uploadSpeed / 1024)} KBps</i></p>
           <p>download: <i>${Math.floor(result.bandwidth.downloadSpeed / 1024)} KBps</i></p>
           <p>resolutionUp: <i>${result.video.send.width} x ${result.video.send.height}</i></p>
           <p>resolutionDn: <i>${result.video.recv.width} x ${result.video.recv.height}</i></p>
-          <p>audio jitter: <i>${Math.floor(result.audio.send.jitter * 100) / 10}ms</i></p>
-          <p>send audio loss: <i>${Math.floor(result.calculation.audioPacketLoss * 1000) / 10}%</i></p>
-          <p>video jitter: <i>${Math.floor(result.video.send.jitter * 100) / 10}ms</i></p>
-          <p>send video loss: <i>${Math.floor(result.calculation.videoPacketLoss * 1000) / 10}%</i></p>
+          <p>send audio jitter: <i>${Math.floor(result.audio.send.jitter * 100) / 10}ms</i></p>
+          <p>send audio loss: <i>${Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10}%</i></p>
+          <p>send video jitter: <i>${Math.floor(result.video.send.jitter * 100) / 10}ms</i></p>
+          <p>send video loss: <i>${Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10}%</i></p>
+
+          <p>recv audio jitter: <i>${Math.floor(result.audio.recv.jitter * 100) / 10}ms</i></p>
+          <p>recv audio loss: <i>${Math.floor(result.calculation.audioRecvPacketLoss * 1000) / 10}%</i></p>
+          <p>recv video loss: <i>${Math.floor(result.calculation.videoRecvPacketLoss * 1000) / 10}%</i></p>
           <p>quality reason: <i>${result.video.send.qualityLimitationReason}</i></p>
-          <p>send fps: <i>${result.calculation.FPS}</i></p>
+          <p>send fps: <i>${result.calculation.sendFPS}</i></p>
+          <p>recv fps: <i>${result.calculation.recvFPS}</i></p>
         `;
       document.querySelector('#debug').innerHTML = debug;
     });
@@ -98,8 +104,9 @@
     }, 3000);
   }
 
-  function updateUpBitrate() {
+  function updateUpBitrate(definition) {
     const senders = _PeerConnection.getSenders();
+
     senders.forEach((sender) => {
       const vBandwidth = 1024e3;
       const parameters = sender.getParameters();
@@ -108,9 +115,9 @@
       }
 
       sender.track.applyConstraints({
-        frameRate: { max: 30 },
-        height: { min: 480, ideal: 480 },
-        width: { min: 640, ideal: 640 },
+        frameRate: { max: 25 },
+        height: { min: 480, max: 640},
+        width: { min: 480, max: 640 },
       });
 
       if (sender.track.kind == 'video') {
@@ -214,6 +221,7 @@
         document.querySelector('#ringback').play();
       } else {
         document.querySelector('#display-name').innerHTML = UAe.request.from.display_name;
+        document.querySelector('#caller').innerHTML = UAe.request.from.display_name;
         COMMON.changePage('incoming');
         document.querySelector('#ringing').play();
       }
@@ -223,9 +231,6 @@
       _incomingSession = null;
       _ringPause(session);
       COMMON.changePage('main');
-      M.toast({
-        html: e.cause,
-      });
       _stopStream();
       if (_getStatsResult) {
         _getStatsResult.nomore();
@@ -245,11 +250,22 @@
       });
       COMMON.changePage('main');
     },
+    getusermediafailed: function () {},
   };
 
   function _RTCSessionStatusSubject(session, UAe) {
     Object.keys(_rtcSessionEvent).map((event) => {
       session.on(event, function (e) {
+        if (event.indexOf('failed') !== -1) {
+          try {
+            document.querySelector('#toast-container').classList.remove('hide');
+          } catch (error) {
+            console.log(error);
+          }
+          M.toast({
+            html: e.cause,
+          });
+        }
         _rtcSessionEvent[event](e, session, UAe);
       });
     });

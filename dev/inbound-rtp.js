@@ -13,14 +13,23 @@ callStatsParser.inboundrtp = function(result) {
     callStatsResult[mediaType]['recv']['packetsReceived'] = result.packetsReceived;
   }
 
-  // 丢包数量数量
+  // 发送/接收 丢包数量
   if (!!result.packetsLost && result.type === 'remote-inbound-rtp') {
     callStatsResult[mediaType]['send']['packetsLost'] = result.packetsLost;
+  } else if (!!result.packetsLost) {
+    callStatsResult[mediaType]['recv']['packetsLost'] = result.packetsLost;
   }
 
-  // 网络抖动,包括(Audio jitter, Video jitter, all jitter) 默认单位:秒
+  // RTT  默认单位：秒 * 1000
+  if (!!result.roundTripTime && result.type === 'remote-inbound-rtp') {
+    callStatsResult[mediaType]['roundTripTime'] = result.roundTripTime * 1000;
+  }
+
+  // 网络抖动,包括(Audio jitter, Video jitter, all jitter) 默认单位:秒 * 1000
   if (!!result.jitter && result.type === 'remote-inbound-rtp') {
     callStatsResult[mediaType]['send']['jitter'] = result.jitter * 1000;
+  } else if (!!result.jitter) {
+    callStatsResult[mediaType]['recv']['jitter'] = result.jitter * 1000;
   }
 
   // 收到字节数
