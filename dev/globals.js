@@ -24,6 +24,7 @@ var callStatsResult = {
     downloadSpeed: 0,
   },
   video: {
+    roundTripTime: 0,
     send: {
       bytesSent: 0,
       width: null,
@@ -41,12 +42,14 @@ var callStatsResult = {
       height: null,
       width: null,
       packetsReceived: 0,
+      packetsLost: 0,
       pliCount: 0,
       framesReceived: 0,
       // framesDecoded: 0,
     },
   },
   audio: {
+    roundTripTime: 0,
     send: {
       bytesSent: 0,
       jitter: 0,
@@ -56,12 +59,16 @@ var callStatsResult = {
     recv: {
       bytesReceived: 0,
       packetsReceived: 0,
+      packetsLost: 0,
     },
   },
   calculation: {
-    packetLoss: 0,
-    audioPacketLoss: 0,
-    videoPacketLoss: 0,
+    sendPacketLoss: 0,
+    audioSendPacketLoss: 0,
+    videoSendPacketLoss: 0,
+    recvPacketLoss: 0,
+    audioRecvPacketLoss: 0,
+    videoRecvPacketLoss: 0,
     FPS: 0,
   },
   encryption: null,

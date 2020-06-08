@@ -1,7 +1,7 @@
 'use strict';
 
 // callStats v1.2.0
-// Last time updated: 2020-06-05 5:00:46 AM UTC
+// Last time updated: 2020-06-08 8:13:39 AM UTC
 
 var callStats = function(mediaStreamTrack, callback, interval) {
 
@@ -134,6 +134,7 @@ var callStats = function(mediaStreamTrack, callback, interval) {
       downloadSpeed: 0,
     },
     video: {
+      roundTripTime: 0,
       send: {
         bytesSent: 0,
         width: null,
@@ -151,12 +152,14 @@ var callStats = function(mediaStreamTrack, callback, interval) {
         height: null,
         width: null,
         packetsReceived: 0,
+        packetsLost: 0,
         pliCount: 0,
         framesReceived: 0,
         // framesDecoded: 0,
       },
     },
     audio: {
+      roundTripTime: 0,
       send: {
         bytesSent: 0,
         jitter: 0,
@@ -166,12 +169,16 @@ var callStats = function(mediaStreamTrack, callback, interval) {
       recv: {
         bytesReceived: 0,
         packetsReceived: 0,
+        packetsLost: 0,
       },
     },
     calculation: {
-      packetLoss: 0,
-      audioPacketLoss: 0,
-      videoPacketLoss: 0,
+      sendPacketLoss: 0,
+      audioSendPacketLoss: 0,
+      videoSendPacketLoss: 0,
+      recvPacketLoss: 0,
+      audioRecvPacketLoss: 0,
+      videoRecvPacketLoss: 0,
       FPS: 0,
     },
     encryption: null,
@@ -325,23 +332,41 @@ var callStats = function(mediaStreamTrack, callback, interval) {
 
       // 音频丢包率
       if (!callStatsResult.audio.send.packetsLost) {
-        callStatsResult.calculation.audioPacketLoss = 0;
+        callStatsResult.calculation.audioSendPacketLoss = 0;
       } else {
-        callStatsResult.calculation.audioPacketLoss = callStatsResult.audio.send.packetsLost / callStatsResult.audio.send.packetsSent;
+        callStatsResult.calculation.audioSendPacketLoss = callStatsResult.audio.send.packetsLost / callStatsResult.audio.send.packetsSent;
+      }
+
+      if (!callStatsResult.audio.recv.packetsLost) {
+        callStatsResult.calculation.audioRecvPacketLoss = 0;
+      } else {
+        callStatsResult.calculation.audioRecvPacketLoss =
+          callStatsResult.audio.recv.packetsLost / (callStatsResult.audio.recv.packetsReceived + callStatsResult.audio.recv.packetsLost);
       }
 
       // 视频丢包率
       if (!callStatsResult.video.send.packetsLost) {
-        callStatsResult.calculation.videoPacketLoss = 0;
+        callStatsResult.calculation.videoSendPacketLoss = 0;
       } else {
-        callStatsResult.calculation.videoPacketLoss = callStatsResult.video.send.packetsLost / callStatsResult.video.send.packetsSent;
+        callStatsResult.calculation.videoSendPacketLoss = callStatsResult.video.send.packetsLost / callStatsResult.video.send.packetsSent;
+      }
+      if (!callStatsResult.video.recv.packetsLost) {
+        callStatsResult.calculation.videoRecvPacketLoss = 0;
+      } else {
+        callStatsResult.calculation.videoRecvPacketLoss =
+          callStatsResult.video.recv.packetsLost / (callStatsResult.video.recv.packetsReceived + callStatsResult.video.recv.packetsLost);
       }
 
       // 丢包率
-      callStatsResult.calculation.packetLoss =
-        callStatsResult.calculation.videoPacketLoss > callStatsResult.calculation.audiooPacketLoss ?
-        callStatsResult.calculation.videoPacketLoss :
-        callStatsResult.calculation.audioPacketLoss;
+      callStatsResult.calculation.sendPacketLoss =
+        callStatsResult.calculation.videoSendPacketLoss > callStatsResult.calculation.audioSendPacketLoss ?
+        callStatsResult.calculation.videoSendPacketLoss :
+        callStatsResult.calculation.audioSendPacketLoss;
+
+      callStatsResult.calculation.recvPacketLoss =
+        callStatsResult.calculation.videoRecvPacketLoss > callStatsResult.calculation.audioRecvPacketLoss ?
+        callStatsResult.calculation.videoRecvPacketLoss :
+        callStatsResult.calculation.audioRecvPacketLoss;
 
       // 帧率
       callStatsResult.calculation.FPS = Math.floor((callStatsResult.video.send.framesSent - tmpParam.prevFramesSent) / (interval || 1));
@@ -406,14 +431,23 @@ var callStats = function(mediaStreamTrack, callback, interval) {
       callStatsResult[mediaType]['recv']['packetsReceived'] = result.packetsReceived;
     }
 
-    // 丢包数量数量
+    // 发送/接收 丢包数量
     if (!!result.packetsLost && result.type === 'remote-inbound-rtp') {
       callStatsResult[mediaType]['send']['packetsLost'] = result.packetsLost;
+    } else if (!!result.packetsLost) {
+      callStatsResult[mediaType]['recv']['packetsLost'] = result.packetsLost;
     }
 
-    // 网络抖动,包括(Audio jitter, Video jitter, all jitter) 默认单位:秒
+    // RTT  默认单位：秒 * 1000
+    if (!!result.roundTripTime && result.type === 'remote-inbound-rtp') {
+      callStatsResult[mediaType]['roundTripTime'] = result.roundTripTime * 1000;
+    }
+
+    // 网络抖动,包括(Audio jitter, Video jitter, all jitter) 默认单位:秒 * 1000
     if (!!result.jitter && result.type === 'remote-inbound-rtp') {
       callStatsResult[mediaType]['send']['jitter'] = result.jitter * 1000;
+    } else if (!!result.jitter) {
+      callStatsResult[mediaType]['recv']['jitter'] = result.jitter * 1000;
     }
 
     // 收到字节数
