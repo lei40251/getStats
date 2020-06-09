@@ -129,50 +129,26 @@
     var lowConstraints, mediumConstraints, highConstraints;
 
     var constraints = {
-      low: { frameRate: { min: 15, max: 25 }, width: 320, height: 240, aspectRatio: 1.3333333 },
-      medium: { frameRate: { min: 15, max: 25 }, width: 640, height: 480, aspectRatio: 1.33333333 },
-      high: { frameRate: { min: 15, max: 25 }, width: 1280, height: 720 },
+      low: { frameRate: { min: 15, max: 25 }, width: 320, aspectRatio: 1.3333333 },
+      medium: { frameRate: { min: 15, max: 25 }, width: 640, aspectRatio: 1.33333333 },
+      high: { frameRate: { min: 15, max: 25 }, width: 1280, aspectRatio: 1.77777777 },
     };
-
-    const mobileConstraints = {
-      low: { frameRate: { min: 15, max: 25 }, height: { exact: 320 }, width: { exact: 240 }, aspectRatio: 0.75 },
-      medium: { frameRate: { min: 15, max: 25 }, height: { exact: 640 }, width: { exact: 480 }, aspectRatio: 0.75 },
-      high: { frameRate: { min: 15, max: 25 }, height: { exact: 1280 }, width: { exact: 720 }, aspectRatio: 0.75 },
-    };
-
-    const osName = ua.getOS().name;
-
-    switch (osName) {
-      case 'iOS':
-      case 'Android':
-        console.log(osName);
-        lowConstraints = mobileConstraints.low;
-        mediumConstraints = mobileConstraints.medium;
-        highConstraints = mobileConstraints.high;
-        break;
-      default:
-        console.log('onsname: ', osName);
-        lowConstraints = constraints.low;
-        mediumConstraints = constraints.medium;
-        highConstraints = constraints.high;
-        break;
-    }
 
     switch (definition) {
       case 'low':
         maxBitrate = vBandwidth / 2;
         networkPriority = 'low';
-        constraints = lowConstraints;
+        constraints = constraints.low;
         break;
       case 'medium':
         maxBitrate = vBandwidth;
         networkPriority = 'high';
-        constraints = mediumConstraints;
+        constraints = constraints.medium;;
         break;
       case 'high':
         maxBitrate = vBandwidth * 2;
         networkPriority = 'high';
-        constraints = highConstraints;
+        constraints = constraints.high;
         break;
       default:
         break;
