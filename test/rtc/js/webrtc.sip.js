@@ -19,10 +19,27 @@
     },
   };
 
+  var callerTotalFlag = false;
   // RTCPeerConnection stats
   function _getPeerStats(peer) {
+    var ownToastFlag = false;
     callStats(peer, function (result) {
-      console.log(result);
+      if (
+        Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 8 ||
+        Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 8 ||
+        result.video.send.qualityLimitationReason !== 'none'
+      ) {
+        if (!ownToastFlag) {
+          ownToastFlag = true;
+          M.toast({
+            html: '您的的音视频质量欠佳，会影响通话体验',
+            completeCallback: function () {
+              ownToastFlag = false;
+            },
+          });
+        }
+        _session.sendInfo('text/plain', 'quality');
+      }
       var debug = `
           <p>upload: <i>${Math.floor(result.bandwidth.uploadSpeed / 1024)} KBps</i></p>
           <p>download: <i>${Math.floor(result.bandwidth.downloadSpeed / 1024)} KBps</i></p>
@@ -99,32 +116,81 @@
 
     COMMON.changePage('session');
     _getPeerStats(_PeerConnection);
-    setTimeout(() => {
-      updateUpBitrate();
-    }, 3000);
   }
 
   function updateUpBitrate(definition) {
+    if (definition == '请选择') return;
     const senders = _PeerConnection.getSenders();
+    const vBandwidth = 1024e3;
+
+    var networkPriority = 'high';
+    var maxBitrate = vBandwidth;
+
+    var lowConstraints, mediumConstraints, highConstraints;
+
+    var constraints = {
+      low: { frameRate: { min: 15, max: 25 }, width: 320, height: 240, aspectRatio: 1.3333333 },
+      medium: { frameRate: { min: 15, max: 25 }, width: 640, height: 480, aspectRatio: 1.33333333 },
+      high: { frameRate: { min: 15, max: 25 }, width: 1280, height: 720 },
+    };
+
+    const mobileConstraints = {
+      low: { frameRate: { min: 15, max: 25 }, height: { exact: 320 }, width: { exact: 240 }, aspectRatio: 0.75 },
+      medium: { frameRate: { min: 15, max: 25 }, height: { exact: 640 }, width: { exact: 480 }, aspectRatio: 0.75 },
+      high: { frameRate: { min: 15, max: 25 }, height: { exact: 1280 }, width: { exact: 720 }, aspectRatio: 0.75 },
+    };
+
+    const osName = ua.getOS().name;
+
+    switch (osName) {
+      case 'iOS':
+      case 'Android':
+        console.log(osName);
+        lowConstraints = mobileConstraints.low;
+        mediumConstraints = mobileConstraints.medium;
+        highConstraints = mobileConstraints.high;
+        break;
+      default:
+        console.log('onsname: ', osName);
+        lowConstraints = constraints.low;
+        mediumConstraints = constraints.medium;
+        highConstraints = constraints.high;
+        break;
+    }
+
+    switch (definition) {
+      case 'low':
+        maxBitrate = vBandwidth / 2;
+        networkPriority = 'low';
+        constraints = lowConstraints;
+        break;
+      case 'medium':
+        maxBitrate = vBandwidth;
+        networkPriority = 'high';
+        constraints = mediumConstraints;
+        break;
+      case 'high':
+        maxBitrate = vBandwidth * 2;
+        networkPriority = 'high';
+        constraints = highConstraints;
+        break;
+      default:
+        break;
+    }
 
     senders.forEach((sender) => {
-      const vBandwidth = 1024e3;
       const parameters = sender.getParameters();
       if (!parameters.encodings) {
         parameters.encodings = [{}];
       }
 
-      sender.track.applyConstraints({
-        frameRate: { max: 25 },
-        height: { min: 480, max: 640},
-        width: { min: 480, max: 640 },
-      });
+      sender.track.applyConstraints(constraints);
 
       if (sender.track.kind == 'video') {
-        parameters.encodings[0].maxBitrate = vBandwidth;
+        parameters.encodings[0].maxBitrate = maxBitrate;
         parameters.encodings[0].maxFramerate = 20;
-        parameters.encodings[0].networkPriority = 'high';
-        parameters.encodings[0].priority = 'high';
+        parameters.encodings[0].networkPriority = networkPriority;
+        parameters.encodings[0].priority = networkPriority;
       } else if (sender.track.kind == 'audio') {
         parameters.encodings[0].maxBitrate = vBandwidth / 2;
       }
@@ -185,8 +251,14 @@
     },
     registrationFailed: function (e) {
       COMMON.changePage('login');
+      if (e.cause == 'Connection Error') {
+        M.toast({
+          html: '网络连接错误,请检查网络信号',
+        });
+        return;
+      }
       M.toast({
-        html: e.cause,
+        html: '注册失败，请检查用户名或密码',
       });
     },
     newRTCSession: function (e) {
@@ -235,6 +307,59 @@
       if (_getStatsResult) {
         _getStatsResult.nomore();
       }
+      if (e.cause == 'Request Timeout') {
+        M.toast({
+          html: '请求超时，请检查网络',
+        });
+      }
+      if (e.cause == 'Connection Error') {
+        M.toast({
+          html: '连接错误，请检查网络',
+        });
+      }
+      if (e.cause == 'Incompatible SDP') {
+        M.toast({
+          html: '不兼容的SDP',
+        });
+      }
+      if (e.originator == 'remote') {
+        if (e.cause == 'Canceled') {
+          M.toast({
+            html: '用户取消呼叫',
+          });
+        }
+        if (e.cause == 'Busy') {
+          M.toast({
+            html: '被叫忙',
+          });
+        }
+        if (e.cause == 'Not Found') {
+          M.toast({
+            html: '用户不存在',
+          });
+        }
+        if (e.cause == 'Rejected') {
+          M.toast({
+            html: '对方已拒绝',
+          });
+        }
+        if (e.cause == 'SIP Failure Code') {
+          M.toast({
+            html: 'SIP Failure Code',
+          });
+        }
+      } else {
+        if (e.cause == 'Canceled') {
+          M.toast({
+            html: '已取消呼叫',
+          });
+        }
+        if (e.cause == 'Rejected') {
+          M.toast({
+            html: '已拒绝',
+          });
+        }
+      }
     },
     accepted: function (e, session, UAe) {
       _session = session;
@@ -245,27 +370,59 @@
       _session = null;
       _incomingSession = null;
       _stopStream();
+      COMMON.changePage('main');
+      if (e.cause == 'Terminated') {
+        M.toast({
+          html: '通话结束',
+        });
+        return;
+      }
       M.toast({
         html: e.cause,
       });
-      COMMON.changePage('main');
     },
-    getusermediafailed: function () {},
+    getusermediafailed: function () {
+      M.toast({
+        html: '获取媒体设备失败，请检查权限',
+      });
+    },
+    newInfo: function (e) {
+      if (e.originator == 'remote') {
+        switch (e.request.body) {
+          case 'closeMic':
+            M.toast({
+              html: '对方已关闭麦克风',
+            });
+            break;
+          case 'closeCam':
+            M.toast({
+              html: '对方已关闭摄像头',
+            });
+            break;
+          case 'closeSpeaker':
+            M.toast({
+              html: '对方已关闭扬声器',
+            });
+            break;
+          case 'quality':
+            if (!callerTotalFlag) {
+              callerTotalFlag = true;
+              M.toast({
+                html: '对方的音视频质量欠佳，会影响通话体验',
+                completeCallback: function () {
+                  callerTotalFlag = false;
+                },
+              });
+            }
+          default:
+            break;
+        }
+      }
+    },
   };
-
   function _RTCSessionStatusSubject(session, UAe) {
     Object.keys(_rtcSessionEvent).map((event) => {
       session.on(event, function (e) {
-        if (event.indexOf('failed') !== -1) {
-          try {
-            document.querySelector('#toast-container').classList.remove('hide');
-          } catch (error) {
-            console.log(error);
-          }
-          M.toast({
-            html: e.cause,
-          });
-        }
         _rtcSessionEvent[event](e, session, UAe);
       });
     });
@@ -337,7 +494,23 @@
     }
   };
 
+  WebRTC.prototype.updateConstraints = function (options) {
+    updateUpBitrate(options);
+  };
+
+  WebRTC.prototype.closeSpeaker = function () {
+    _session.sendInfo('text/plain', 'closeSpeaker');
+
+    M.toast({
+      html: '您已关闭扬声器',
+    });
+  };
+
   WebRTC.prototype.closeMic = function () {
+    _session.sendInfo('text/plain', 'closeMic');
+    M.toast({
+      html: '您已关闭麦克风',
+    });
     if (_session) {
       _session.mute({
         audio: true,
@@ -354,6 +527,10 @@
   };
 
   WebRTC.prototype.closeCam = function () {
+    _session.sendInfo('text/plain', 'closeCam');
+    M.toast({
+      html: '您已关闭摄像头',
+    });
     if (_session) {
       _session.mute({
         video: true,
@@ -384,9 +561,6 @@
   WebRTC.prototype.switchCam = function () {
     const stream = _session.switchVideoStream();
 
-    setTimeout(() => {
-      updateUpBitrate();
-    }, 3000);
     stream &&
       stream.then((s) => {
         document.querySelector('#localVideo').srcObject = s;
@@ -395,9 +569,6 @@
 
   WebRTC.prototype.switchStream = function (stream) {
     window.stream = stream;
-    setTimeout(() => {
-      updateUpBitrate();
-    }, 3000);
     if (_session && _PeerConnection) {
       _PeerConnection.getLocalStreams().forEach((stream) => {
         _PeerConnection.removeStream(stream);

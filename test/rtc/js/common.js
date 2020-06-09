@@ -20,15 +20,10 @@
       return null;
     },
     changePage: function (page) {
-      try {
-        document.querySelector('#toast-container').classList.remove('hide');
-      } catch (error) {
-        console.log(error);
-      }
       switch (page) {
         case 'login':
           loginPage.parentNode.childNodes.forEach((ele) => {
-            if (ele.nodeName == 'DIV') {
+            if (ele.nodeName == 'DIV' && ele.classList.contains('hPage')) {
               ele.classList.add('hide');
             }
           });
@@ -36,7 +31,7 @@
           break;
         case 'main':
           mainPage.parentNode.childNodes.forEach((ele) => {
-            if (ele.nodeName == 'DIV') {
+            if (ele.nodeName == 'DIV' && ele.classList.contains('hPage')) {
               ele.classList.add('hide');
             }
           });
@@ -45,7 +40,7 @@
           break;
         case 'calling':
           callingPage.parentNode.childNodes.forEach((ele) => {
-            if (ele.nodeName == 'DIV') {
+            if (ele.nodeName == 'DIV' && ele.classList.contains('hPage')) {
               ele.classList.add('hide');
             }
           });
@@ -53,7 +48,7 @@
           break;
         case 'session':
           sessionPage.parentNode.childNodes.forEach((ele) => {
-            if (ele.nodeName == 'DIV') {
+            if (ele.nodeName == 'DIV' && ele.classList.contains('hPage')) {
               ele.classList.add('hide');
             }
           });
@@ -63,7 +58,7 @@
           break;
         case 'incoming':
           incomingPage.parentNode.childNodes.forEach((ele) => {
-            if (ele.nodeName == 'DIV') {
+            if (ele.nodeName == 'DIV' && ele.classList.contains('hPage')) {
               ele.classList.add('hide');
             }
           });

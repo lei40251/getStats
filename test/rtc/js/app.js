@@ -36,7 +36,7 @@
   var testVideo = document.querySelector('#test-video');
 
   // TODO: DEBUG
-  FlyInnWeb.debug.disable('FlyInnWeb:*');
+  FlyInnWeb.debug.disable('FlyInn:*');
   // var box = tapNode("body");
   // box.on("longtap", function () {
   var vConsole = new VConsole();
@@ -59,10 +59,21 @@
   //   }
   // })
 
+  $('.selectM').change(function () {
+    if ($(this).val()) {
+      webrtc.updateConstraints($(this).val());
+    }
+  });
+
+  $('.video-container').click(function () {
+    $('#debug').toggleClass('hide');
+  });
+
   /* Listen */
   callBtn.onclick = function () {
     if (linkman.value) {
       webrtc.call(linkman.value);
+      $('.caller').html(linkman.value);
     } else {
       M.toast({
         html: '请输入客服号码！',
@@ -419,6 +430,7 @@
       classes.toggle('close-vol');
     } else {
       document.querySelector('#remoteVideo').muted = true;
+      webrtc.closeSpeaker();
       classes.toggle('close-vol');
     }
   }
@@ -439,7 +451,7 @@
   function login() {
     sessionStorage.setItem('account', document.querySelector('#account').value);
     sessionStorage.setItem('password', document.querySelector('#password').value);
-    start();
+    start({ account: document.querySelector('#account').value, password: document.querySelector('#password').value });
   }
 
   /**
@@ -488,30 +500,17 @@
   }
 
   // start
-  function start() {
-    var urlAccount = COMMON.handleGetQuery('account');
-    var sessionAccount = sessionStorage.getItem('account');
-    var urlPassword = COMMON.handleGetQuery('password');
-    var sessionPassword = sessionStorage.getItem('password');
+  function start(options) {
+    var sessionAccount = (options && options.account) || sessionStorage.getItem('account');
+    var sessionPassword = (options && options.password) || sessionStorage.getItem('password');
     // check account
-    if (urlAccount) {
-      account = urlAccount;
-      sessionStorage.setItem('account', urlAccount);
-    } else if (sessionAccount) {
-      account = sessionAccount;
-    }
-    // check password
-    if (urlPassword) {
-      password = urlPassword;
-      sessionStorage.setItem('password', urlPassword);
-    } else if (sessionPassword) {
-      password = sessionPassword;
-    }
+    if (sessionAccount && sessionPassword) {
+      $('input[name="newAccount"]').val(sessionAccount);
+      $('input[name="newPassword"]').val(sessionPassword);
 
-    if (account && password) {
       webrtc = new window.App.WebRTC({
-        account: account,
-        password: password,
+        account: sessionAccount,
+        password: sessionPassword,
         domain: domain,
         wss: wss,
       });
@@ -524,14 +523,10 @@
     // initDevice();
   }
 
-  var detectResult = detectRTC();
+  // COMMON.changePage('session');
+  start();
 
-  if (!detectResult.base) {
-    M.toast({
-      html: '该不支持 WebRTC，请更换或升级浏览器',
-    });
-    return;
-  } else {
-    start();
-  }
+  window.onbeforeunload = function () {
+    // sessionStorage.clear();
+  };
 })(window);
