@@ -148,6 +148,37 @@
         </div>
       </div>
 
+      <div class="row">
+        <p>视频参数选择 (测试用)</p>
+        <div class="input-field col s4">
+          <select class="asp">
+            <option selected value="low">360p</option>
+            <option value="medium">480p</option>
+            <option value="high">720p</option>
+          </select>
+          <label>分辨率</label>
+        </div>
+        <div class="input-field col s4">
+          <select class="fps">
+            <option value="low">10fps</option>
+            <option selected value="medium">15fps</option>
+            <option value="high">20fps</option>
+            <option value="vhigh">25fps</option>
+          </select>
+          <label>帧率</label>
+        </div>
+        <div class="input-field col s4">
+          <select class="speed">
+            <option selected value="low">512k</option>
+            <option value="medium">1M</option>
+            <option value="high">1.5M</option>
+            <option value="vhigh">2M</option>
+          </select>
+          <label>带宽</label>
+        </div>
+        <a class="waves-effect waves-light fluid btn update">确定</a>
+      </div>
+
       <div class="action s12 m8 offset-m2 l4 offset-l4">
         <div>
           <button id="hangup" class="btn-floating waves-effect waves-light red"><i class="material-icons">call_end</i></button>
@@ -184,36 +215,6 @@
           <p>切换摄像头</p>
         </div>
       </div>
-      <!-- <div class="row">
-        <p>视频参数选择</p>
-        <div class="input-field col s4">
-          <select>
-            <option value="low">360p</option>
-            <option value="medium">480p</option>
-            <option value="high">720p</option>
-          </select>
-          <label>分辨率</label>
-        </div>
-        <div class="input-field col s4">
-          <select>
-            <option value="low">10fps</option>
-            <option value="medium">15fps</option>
-            <option value="high">20fps</option>
-            <option value="vhigh">25fps</option>
-          </select>
-          <label>帧率</label>
-        </div>
-        <div class="input-field col s4">
-          <select>
-            <option value="low">512k</option>
-            <option value="medium">1M</option>
-            <option value="high">1.5M</option>
-            <option value="vhigh">2M</option>
-          </select>
-          <label>带宽</label>
-        </div>
-        <a class="waves-effect waves-light fluid btn">确定</a>
-      </div> -->
       <div id="debug" class="debug col s12 m8 l4 hide"></div>
     </div>
     <div id="incoming-page" class="calling-page hPage hide">

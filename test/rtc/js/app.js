@@ -59,6 +59,25 @@
   //   }
   // })
 
+  //
+  $('.update').click(function () {
+    var test = { speed: 120, constraints: { frameRate: 15, width: 640, aspectRatio: 1.33333333 }, priority: 'low' };
+
+    var speed = { low: 512, medium: 1024, high: 1536, vhigh: 2048 };
+    var frameRate = { low: 10, medium: 15, high: 20, vhigh: 25 };
+    var asp = { low: { width: 640, height: 360, aspectRatio: 1.777777778 }, medium: { width: 640, height: 480, aspectRatio: 1.33333333 }, high: { width: 1280, height: 720, aspectRatio: 1.777777778 } };
+
+    test.speed = speed[$('.speed').val()] * 1000;
+    test.constraints.frameRate = frameRate[$('.fps').val()];
+    test.constraints.width = asp[$('.asp').val()].width;
+    test.constraints.height = asp[$('.asp').val()].height;
+    test.constraints.aspectRatio = asp[$('.asp').val()].aspectRatio;
+    test.priority = $('.asp').val() === 'vhight' ? 'high' : $('.asp').val();
+
+    webrtc.testUpdate(test);
+  });
+  //
+
   $('.selectM').change(function () {
     if ($(this).val()) {
       webrtc.updateConstraints($(this).val());

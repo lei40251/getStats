@@ -118,6 +118,37 @@
     _getPeerStats(_PeerConnection);
   }
 
+  function testUpdate(test) {
+    if (!test) return;
+    const senders = _PeerConnection.getSenders();
+
+    var maxBitrate = test.speed;
+    var priority = test.priority;
+    var constraints = test.constraints;
+    var maxFramerate = test.constraints.frameRate;
+
+    senders.forEach((sender) => {
+      const parameters = sender.getParameters();
+      if (!parameters.encodings) {
+        parameters.encodings = [{}];
+      }
+
+      sender.track.applyConstraints(constraints);
+
+      if (sender.track.kind == 'video') {
+        parameters.encodings[0].maxBitrate = maxBitrate;
+        parameters.encodings[0].maxFramerate = maxFramerate;
+        parameters.encodings[0].networkPriority = priority;
+        parameters.encodings[0].priority = priority;
+      } else if (sender.track.kind == 'audio') {
+        parameters.encodings[0].maxBitrate = maxBitrate / 2;
+      }
+
+      sender.setParameters(parameters).catch((e) => console.error(e));
+      console.log(sender.getParameters());
+    });
+  }
+
   function updateUpBitrate(definition) {
     if (definition == '请选择') return;
     const senders = _PeerConnection.getSenders();
@@ -125,8 +156,6 @@
 
     var networkPriority = 'high';
     var maxBitrate = vBandwidth;
-
-    var lowConstraints, mediumConstraints, highConstraints;
 
     var constraints = {
       low: { frameRate: { min: 15, max: 25 }, width: 320, aspectRatio: 1.3333333 },
@@ -143,7 +172,7 @@
       case 'medium':
         maxBitrate = vBandwidth;
         networkPriority = 'high';
-        constraints = constraints.medium;;
+        constraints = constraints.medium;
         break;
       case 'high':
         maxBitrate = vBandwidth * 2;
@@ -299,6 +328,11 @@
         });
       }
       if (e.originator == 'remote') {
+        if (e.message.reason_phrase == 'Timeout') {
+          M.toast({
+            html: '呼叫超时',
+          });
+        }
         if (e.cause == 'Canceled') {
           M.toast({
             html: '用户取消呼叫',
@@ -468,6 +502,10 @@
     if (_session) {
       _session.terminate();
     }
+  };
+
+  WebRTC.prototype.testUpdate = function (options) {
+    testUpdate(options);
   };
 
   WebRTC.prototype.updateConstraints = function (options) {
