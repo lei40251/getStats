@@ -23,24 +23,43 @@
   // RTCPeerConnection stats
   function _getPeerStats(peer) {
     var ownToastFlag = false;
-    callStats(peer, function (result) {
-      if (
-        Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 8 ||
-        Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 8 ||
-        result.video.send.qualityLimitationReason !== 'none'
-      ) {
-        if (!ownToastFlag) {
-          ownToastFlag = true;
-          M.toast({
-            html: '您的的音视频质量欠佳，会影响通话体验',
-            completeCallback: function () {
-              ownToastFlag = false;
-            },
-          });
+    callStats(
+      peer,
+      function (result) {
+        if (
+          Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 5 ||
+          Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 5
+        ) {
+          if (!ownToastFlag) {
+            ownToastFlag = true;
+            M.toast({
+              html: '网络不稳定',
+              completeCallback: function () {
+                setTimeout(function () {
+                  ownToastFlag = false;
+                }, 27000);
+              },
+            });
+          }
+          // _session.sendInfo('text/plain', 'quality');
+        } else if (
+          Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 10 ||
+          Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 10
+        ) {
+          if (!ownToastFlag) {
+            ownToastFlag = true;
+            M.toast({
+              html: '您的网络很差',
+              completeCallback: function () {
+                setTimeout(function () {
+                  ownToastFlag = false;
+                }, 27000);
+              },
+            });
+          }
+          _session.sendInfo('text/plain', 'quality');
         }
-        _session.sendInfo('text/plain', 'quality');
-      }
-      var debug = `
+        var debug = `
           <p>upload: <i>${Math.floor(result.bandwidth.uploadSpeed / 1024)} KBps</i></p>
           <p>download: <i>${Math.floor(result.bandwidth.downloadSpeed / 1024)} KBps</i></p>
           <p>resolutionUp: <i>${result.video.send.width} x ${result.video.send.height}</i></p>
@@ -57,8 +76,10 @@
           <p>send fps: <i>${result.calculation.sendFPS}</i></p>
           <p>recv fps: <i>${result.calculation.recvFPS}</i></p>
         `;
-      document.querySelector('#debug').innerHTML = debug;
-    });
+        document.querySelector('#debug').innerHTML = debug;
+      },
+      5
+    );
   }
 
   // remove stream
@@ -418,7 +439,7 @@
             if (!callerTotalFlag) {
               callerTotalFlag = true;
               M.toast({
-                html: '对方的音视频质量欠佳，会影响通话体验',
+                html: '对方的网络很差，会影响通话体验',
                 completeCallback: function () {
                   callerTotalFlag = false;
                 },
