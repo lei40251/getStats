@@ -18,6 +18,8 @@
       status_code: 403,
     },
   };
+  var timeSession = 0;
+  var sessionTimer;
 
   var callerTotalFlag = false;
   // RTCPeerConnection stats
@@ -78,8 +80,48 @@
         `;
         document.querySelector('#debug').innerHTML = debug;
       },
-      5
+      5,
     );
+  }
+
+  /**
+   * 格式化秒为 时分秒格式
+   *
+   * @param {*} value
+   * @returns
+   */
+  function formatSeconds(value) {
+    var flag = false;
+    if (value < 0) {
+      flag = true;
+      value = Math.abs(value);
+    }
+    var secondTime = parseInt(value); // 秒
+    var minuteTime = 0; // 分
+    var hourTime = 0; // 小时
+    if (secondTime >= 60) {
+      //如果秒数大于60，将秒数转换成整数
+      //获取分钟，除以60取整数，得到整数分钟
+      minuteTime = parseInt(secondTime / 60);
+      //获取秒数，秒数取佘，得到整数秒数
+      secondTime = parseInt(secondTime % 60);
+      //如果分钟大于60，将分钟转换成小时
+      if (minuteTime >= 60) {
+        //获取小时，获取分钟除以60，得到整数小时
+        hourTime = parseInt(minuteTime / 60);
+        //获取小时后取佘的分，获取分钟除以60取佘的分
+        minuteTime = parseInt(minuteTime % 60);
+      }
+    }
+    var result = '' + parseInt(secondTime) + '秒';
+
+    if (minuteTime > 0) {
+      result = '' + parseInt(minuteTime) + '分' + result;
+    }
+    if (hourTime > 0) {
+      result = '' + parseInt(hourTime) + '小时' + result;
+    }
+    return flag ? '-' + result : result;
   }
 
   // remove stream
@@ -134,6 +176,14 @@
     _PeerConnection.addEventListener('addstream', function (e) {
       document.querySelector('#remoteVideo').srcObject = e.stream;
     });
+
+    $('.session-timer').html('');
+    clearInterval(sessionTimer);
+    timeSession = 0;
+    sessionTimer = setInterval(function () {
+      timeSession++;
+      $('.session-timer').html(formatSeconds(timeSession));
+    }, 1000);
 
     COMMON.changePage('session');
     _getPeerStats(_PeerConnection);
@@ -354,6 +404,13 @@
             html: '呼叫超时',
           });
         }
+        if (e.cause == 'Unavailable') {
+          if (e.message.reason_phrase === 'Request Timeout') {
+            M.toast({
+              html: '呼叫超时，对方未接听',
+            });
+          }
+        }
         if (e.cause == 'Canceled') {
           M.toast({
             html: '用户取消呼叫',
@@ -380,6 +437,11 @@
           });
         }
       } else {
+        if (e.cause == 'No Answer') {
+          M.toast({
+            html: '呼叫未接听',
+          });
+        }
         if (e.cause == 'Canceled') {
           M.toast({
             html: '已取消呼叫',

@@ -65,7 +65,11 @@
 
     var speed = { low: 512, medium: 1024, high: 1536, vhigh: 2048 };
     var frameRate = { low: 10, medium: 15, high: 20, vhigh: 25 };
-    var asp = { low: { width: 640, height: 360, aspectRatio: 1.777777778 }, medium: { width: 640, height: 480, aspectRatio: 1.33333333 }, high: { width: 1280, height: 720, aspectRatio: 1.777777778 } };
+    var asp = {
+      low: { width: 640, height: 360, aspectRatio: 1.777777778 },
+      medium: { width: 640, height: 480, aspectRatio: 1.33333333 },
+      high: { width: 1280, height: 720, aspectRatio: 1.777777778 },
+    };
 
     test.speed = speed[$('.speed').val()] * 1000;
     test.constraints.frameRate = frameRate[$('.fps').val()];
@@ -109,7 +113,10 @@
   };
 
   hangupBtn.onclick = function () {
-    webrtc.hangup();
+    var r = confirm('确认结束?');
+    if (r == true) {
+      webrtc.hangup();
+    }
     // window.location.reload();
   };
 
