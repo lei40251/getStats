@@ -80,7 +80,7 @@
         `;
         document.querySelector('#debug').innerHTML = debug;
       },
-      5,
+      5
     );
   }
 
@@ -664,16 +664,33 @@
       });
   };
 
-  WebRTC.prototype.switchStream = function (stream) {
-    window.stream = stream;
-    if (_session && _PeerConnection) {
-      _PeerConnection.getLocalStreams().forEach((stream) => {
-        _PeerConnection.removeStream(stream);
-      });
+  WebRTC.prototype.switchStream = function (stream, type) {
+    var oStream = null;
+    if (type === 'screen') {
+      window.screenStream = stream;
+      oStream = stream;
+    } else {
+      if (stream) {
+        oStream = stream;
+        window.stream = stream;
+      } else {
+        oStream = window.stream;
+      }
+    }
 
-      _PeerConnection.addStream(stream);
-      _setVideoStream(stream);
-      _session.renegotiate();
+    if (_session && _PeerConnection) {
+      _setVideoStream(oStream);
+
+      if (type === 'screen') {
+        window.stream = _PeerConnection.getLocalStreams()[0];
+      }
+
+      oStream.getVideoTracks().forEach(function (track) {
+        var sender = _PeerConnection.getSenders().find(function (s) {
+          return s.track.kind == track.kind;
+        });
+        sender.replaceTrack(track);
+      });
     }
   };
 

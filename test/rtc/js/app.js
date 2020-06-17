@@ -137,7 +137,39 @@
   };
 
   toggleFeaturedBtn.onclick = function () {
-    toggleFeatured(this);
+    // toggleFeatured(this);
+    if (navigator.getDisplayMedia) {
+      navigator
+        .getDisplayMedia({
+          video: true,
+        })
+        .then((stream) => {
+          stream.addEventListener('inactive', (e) => {
+            webrtc.switchStream();
+          });
+          webrtc.switchStream(stream, 'screen');
+        })
+        .catch((error) => {
+          console.log(error.mssage);
+        });
+    } else if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+      navigator.mediaDevices
+        .getDisplayMedia({
+          video: true,
+        })
+        .then((stream) => {
+          stream.addEventListener('inactive', (e) => {
+            webrtc.switchStream();
+          });
+          webrtc.switchStream(stream, 'screen');
+        })
+        .catch((error) => {
+          console.log(error);
+          // globalMsg.msg(error.message);
+        });
+    } else {
+      console.log('您的浏览器暂不支持分享屏幕');
+    }
   };
 
   // DTMFArea.querySelectorAll('button').forEach((ele) => {
