@@ -80,7 +80,7 @@
         `;
         document.querySelector('#debug').innerHTML = debug;
       },
-      5
+      5,
     );
   }
 
@@ -374,6 +374,33 @@
         document.querySelector('#ringing').play();
       }
     },
+    sdp: function (e) {
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 goog-remb.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 transport-cc.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 ccm fir.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack pli.*\r\n/, '');
+      // if ($('.gr')[0].checked == false) {
+      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 goog-remb.*\r\n/, '');
+      // }
+      // if ($('.tc')[0].checked == false) {
+      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 transport-cc.*\r\n/, '');
+      // }
+      // if ($('.ccmf')[0].checked == false) {
+      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 ccm fir.*\r\n/, '');
+      // }
+      // if ($('.nc')[0].checked == false) {
+      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack.*\r\n/, '');
+      // }
+      // if ($('.ncp')[0].checked == false) {
+      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack pli.*\r\n/, '');
+      // }
+      // a=rtcp-fb:102 goog-remb
+      // a=rtcp-fb:102 transport-cc
+      // a=rtcp-fb:102 ccm fir
+      // a=rtcp-fb:102 nack
+      // a=rtcp-fb:102 nack pli
+    },
     failed: function (e, session, UAe) {
       _session = null;
       _incomingSession = null;
@@ -527,12 +554,26 @@
     document.querySelector('#localVideo').play();
   }
 
+  function handleGetQuery(name) {
+    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+  }
+
+  var payloads = {
+    h264: ['H264', 'VP9', 'VP8'],
+    vp8: ['VP8', 'H264', 'VP9'],
+    vp9: ['VP9', 'VP8', 'H264'],
+  };
+
   /* WebRTC Class */
   function WebRTC(options = {}) {
     this.account = options.account || ' ';
     this.password = options.password || ' ';
     this.domain = options.domain || ' ';
     this.wss = options.wss || ' ';
+    console.log('sssssssssssssss', payloads[handleGetQuery('codes')]);
 
     this.socket = new FlyInnWeb.WebSocketInterface(this.wss);
     this.configuration = {
@@ -566,6 +607,22 @@
         audio: true,
         video: true,
       },
+      pcConfig: {
+        iceServers: [
+          {
+            urls: 'turn:lccsp.zgpajf.com.cn:9000',
+            username: 'user',
+            credential: 'password',
+          },
+          {
+            urls: 'turn:lccsp.zgpajf.com.cn:10001',
+            username: 'user',
+            credential: 'password',
+          },
+        ],
+        iceTransportPolicy: 'relay',
+      },
+      videoPayloads: ['H264', 'VP9', 'VP8'],
     });
   };
 

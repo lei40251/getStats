@@ -40,7 +40,18 @@
               <input id="password" type="password" name="newPassword" autocomplete="new-password" class="validate" />
               <label for="password">密码</label>
             </div>
+
+            <div class="input-field col s4 m4" style="display: none;">
+              <select class="codes">
+                <option>请选择</option>
+                <option value="vp8">VP8</option>
+                <option value="vp9">VP9</option>
+                <option value="h264">H264</option>
+              </select>
+              <label>编码优先</label>
+            </div>
           </div>
+
           <div class="card-action">
             <button type="submit" id="login" class="btn waves-effect waves-light fluid">立即登录</button>
           </div>
@@ -57,7 +68,31 @@
               <input id="linkman" type="text" required name="linkman" autocomplete="name" class="validate" />
               <label for="linkman">请输入被叫号码</label>
             </div>
+
+            <div class="row fluid">
+              <label>
+                <input type="checkbox" class="tc" />
+                <span>transport-cc</span>
+              </label>
+              <label>
+                <input type="checkbox" class="nc" />
+                <span>nack</span>
+              </label>
+              <label>
+                <input type="checkbox" class="ncp" />
+                <span>nack pli</span>
+              </label>
+              <label>
+                <input type="checkbox" class="gr" checked />
+                <span>goog-remb</span>
+              </label>
+              <label>
+                <input type="checkbox" class="ccmf" />
+                <span>ccm fir</span>
+              </label>
+            </div>
           </div>
+
           <div class="card-action col row s12">
             <button id="logout" type="button" class="btn white-text btn-flat fluid waves-effect waves-light blue-grey col s3">注销</button>
             <button id="call" type="button" class="btn fluid waves-effect waves-light blue col s8 offset-s1">呼叫</button>
@@ -278,7 +313,8 @@
         $('#noServiceModal').modal('open');
       }
     </script>
-    <script src="./js/flyinn-web-demo.min.js"></script>
+    <!-- <script src="./js/flyinn-web-demo.min.js"></script> -->
+    <script src="./js/flyinn-web-3.3.11.js"></script>
     <script src="./js/callStats.min.js"></script>
     <script src="./js/vconsole.min.js"></script>
     <script src="./js/config.js"></script>
