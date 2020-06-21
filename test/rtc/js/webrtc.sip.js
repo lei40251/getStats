@@ -80,7 +80,7 @@
         `;
         document.querySelector('#debug').innerHTML = debug;
       },
-      5,
+      5
     );
   }
 
@@ -567,13 +567,17 @@
     vp9: ['VP9', 'VP8', 'H264'],
   };
 
+  var urls = {
+    tcp: 'turn:lccsp.zgpajf.com.cn:9005?transport=tcp',
+    udp: 'turn:lccsp.zgpajf.com.cn:10001',
+  };
+
   /* WebRTC Class */
   function WebRTC(options = {}) {
     this.account = options.account || ' ';
     this.password = options.password || ' ';
     this.domain = options.domain || ' ';
     this.wss = options.wss || ' ';
-    console.log('sssssssssssssss', payloads[handleGetQuery('codes')]);
 
     this.socket = new FlyInnWeb.WebSocketInterface(this.wss);
     this.configuration = {
@@ -610,19 +614,14 @@
       pcConfig: {
         iceServers: [
           {
-            urls: 'turn:lccsp.zgpajf.com.cn:9000',
-            username: 'user',
-            credential: 'password',
-          },
-          {
-            urls: 'turn:lccsp.zgpajf.com.cn:10001',
+            urls: urls[handleGetQuery('transport')],
             username: 'user',
             credential: 'password',
           },
         ],
         iceTransportPolicy: 'relay',
       },
-      videoPayloads: ['H264', 'VP9', 'VP8'],
+      videoPayloads: payloads[handleGetQuery('payload')],
     });
   };
 
