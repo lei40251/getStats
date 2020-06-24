@@ -326,7 +326,9 @@
       COMMON.changePage('main');
     },
     registrationFailed: function (e) {
-      COMMON.changePage('login');
+      if (!_session) {
+        COMMON.changePage('login');
+      }
       if (e.cause == 'Connection Error') {
         M.toast({
           html: '网络连接错误,请检查网络信号',
@@ -612,6 +614,7 @@
       contact_uri: 'sip:' + this.account + '@' + this.account + '.invalid;transport=ws',
       password: this.password,
       display_name: this.account,
+      session_timers: false,
       register: true,
     };
 
