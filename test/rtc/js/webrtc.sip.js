@@ -640,7 +640,10 @@
     this.session = this.ua.call('sip:' + linkman + '@' + this.domain, {
       extraHeaders: ['X-Token: 2c8a1be510764ad222ebcc4ffd0f9775'],
       mediaConstraints: {
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true
+        },
         video: true,
       },
       pcConfig: handleGetQuery('transport')
