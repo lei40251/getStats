@@ -80,7 +80,7 @@
         `;
         document.querySelector('#debug').innerHTML = debug;
       },
-      5
+      5,
     );
   }
 
@@ -509,15 +509,41 @@
     newInfo: function (e) {
       if (e.originator == 'remote') {
         switch (e.request.body) {
+          case 'setRemoteControl':
+            $('.remoteControl').hide();
+            break;
+          case 'cancelRemoteControl':
+            $('.remoteControl').show();
+            break;
+          case 'setMic':
+            document.querySelector('#toggle-microphone').click();
+            break;
+          case 'setVideo':
+            document.querySelector('#toggle-camera').click();
+            break;
           case 'closeMic':
-            M.toast({
-              html: '对方已关闭麦克风',
-            });
+            $('.mic_btn').addClass('off');
+            // M.toast({
+            //   html: '对方已关闭麦克风',
+            // });
+            break;
+          case 'openMic':
+            $('.mic_btn').removeClass('off');
+            // M.toast({
+            //   html: '对方已开启麦克风',
+            // });
             break;
           case 'closeCam':
-            M.toast({
-              html: '对方已关闭摄像头',
-            });
+            $('.video_btn').addClass('off');
+            // M.toast({
+            //   html: '对方已关闭摄像头',
+            // });
+            break;
+          case 'openCam':
+            $('.video_btn').removeClass('off');
+            // M.toast({
+            //   html: '对方已关闭摄像头',
+            // });
             break;
           case 'closeSpeaker':
             M.toast({
@@ -605,23 +631,28 @@
   };
 
   WebRTC.prototype.call = function (linkman) {
+    $('.remoteControl').show();
+    $('.mic_btn').removeClass('off');
+
     this.session = this.ua.call('sip:' + linkman + '@' + this.domain, {
       extraHeaders: ['X-Token: 2c8a1be510764ad222ebcc4ffd0f9775'],
       mediaConstraints: {
         audio: true,
         video: true,
       },
-      pcConfig: {
-        iceServers: [
-          {
-            urls: urls[handleGetQuery('transport')],
-            username: 'user',
-            credential: 'password',
-          },
-        ],
-        iceTransportPolicy: 'relay',
-      },
-      videoPayloads: payloads[handleGetQuery('payload')],
+      pcConfig: handleGetQuery('transport')
+        ? {
+            iceServers: [
+              {
+                urls: urls[handleGetQuery('transport')],
+                username: 'user',
+                credential: 'password',
+              },
+            ],
+            iceTransportPolicy: 'relay',
+          }
+        : {},
+      videoPayloads: handleGetQuery('payload') ? payloads[handleGetQuery('payload')] : [],
     });
   };
 
@@ -672,6 +703,7 @@
   };
 
   WebRTC.prototype.openMic = function () {
+    _session.sendInfo('text/plain', 'openMic');
     if (_session) {
       _session.unmute({
         audio: true,
@@ -692,6 +724,7 @@
   };
 
   WebRTC.prototype.openCam = function () {
+    _session.sendInfo('text/plain', 'openCam');
     if (_session) {
       _session.unmute({
         video: true,
@@ -705,9 +738,13 @@
     }
   };
 
-  WebRTC.prototype.sendInfo = function (message) {
+  WebRTC.prototype.sendInfo = function (message, contentType) {
     if (_session) {
-      _session.sendInfo('application/json', message);
+      if (contentType) {
+        _session.sendInfo(contentType, message);
+      } else {
+        _session.sendInfo('application/json', message);
+      }
     }
   };
 

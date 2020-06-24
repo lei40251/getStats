@@ -122,6 +122,52 @@ body {
   padding: 0;
 }
 
+.video-container .mic_btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  z-index: 3;
+}
+
+.video-container .video_btn {
+  position: absolute;
+  bottom: 5px;
+  right: 65px;
+  z-index: 3;
+}
+
+.mic_btn .mic-on,
+.video_btn .video-on {
+  display: block;
+}
+
+.mic_btn .mic-off,
+.video_btn .video-off {
+  display: none;
+}
+
+.off .mic-on,
+.off .video-on {
+  display: none;
+}
+
+.off .mic-off,
+.off .video-off {
+  display: block;
+}
+
+/* .video-container .local .mic_btn { */
+/* border-radius: 3px; */
+/* cursor: pointer; */
+/* color: rgba(0, 0, 0, 0.5);
+  padding: 5px; */
+/* background-color: rgba(0, 0, 0, 0.1); */
+/* } */
+
+.video-container .local .mic_btn:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
 .normal .local,
 .change .remote {
   /* width: 100%; */
@@ -167,7 +213,7 @@ body {
   left: 0;
   right: 0; */
   /* background-color: #efefef; */
-  padding: 20px;
+  padding: 10px 5px;
   display: flex;
   /* flex-direction: column; */
   justify-content: space-between;

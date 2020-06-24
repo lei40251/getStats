@@ -17,9 +17,15 @@
   var rejectBtn = document.querySelector('#reject');
   var answerBtn = document.querySelector('#answer');
   var switchCamBtn = document.querySelector('#change-camera');
+  var switchMicBtn = document.querySelector('.mic_switch');
   var toggleCamBtn = document.querySelector('#toggle-camera');
+  var setRemoteMicBtn = document.querySelector('#setRemoteMic');
+  var setRemoteVideoBtn = document.querySelector('#setRemoteVideo');
+  var setRemoteControlBtn = document.querySelector('#setRemoteControl');
+  var cancelRemoteControlBtn = document.querySelector('#cancelRemoteControl');
   var toggleVolumeBtn = document.querySelector('#volume');
   var toggleFeaturedBtn = document.querySelector('#featured');
+  var toggleWindowBtn = document.querySelector('#window');
   var toggleMicBtn = document.querySelector('#toggle-microphone');
   var DTMFArea = document.querySelector('#DTMF');
   var infoMessage = document.querySelector('#info-message');
@@ -88,8 +94,10 @@
     }
   });
 
-  $('.video-container').click(function () {
-    $('#debug').toggleClass('hide');
+  $('.video-container').click(function (e) {
+    if (e.target.tagName == 'VIDEO') {
+      $('#debug').toggleClass('hide');
+    }
   });
 
   /* Listen */
@@ -103,6 +111,24 @@
       });
     }
   };
+
+  setRemoteControlBtn.onclick=function(){
+    webrtc.sendInfo('setRemoteControl', 'text/plain');
+  }
+
+  cancelRemoteControlBtn.onclick=function(){
+    webrtc.sendInfo('cancelRemoteControl', 'text/plain');
+  }
+
+  setRemoteMicBtn.onclick = function () {
+    webrtc.sendInfo('setMic', 'text/plain');
+  };
+
+  setRemoteVideoBtn.onclick = function () {
+    webrtc.sendInfo('setVideo', 'text/plain');
+  };
+
+  switchMicBtn.onclick = function (e) {};
 
   cancelBtn.onclick = function () {
     webrtc.cancel();
@@ -136,8 +162,11 @@
     toggleVol(this);
   };
 
+  toggleWindowBtn.onclick = function () {
+    toggleFeatured(this);
+  };
+
   toggleFeaturedBtn.onclick = function () {
-    // toggleFeatured(this);
     if (navigator.getDisplayMedia) {
       navigator
         .getDisplayMedia({
@@ -577,6 +606,10 @@
       COMMON.changePage('login');
     }
 
+
+    $('.remoteControl').show();
+    $('.mic_btn').removeClass('off');
+    $('.video_btn').removeClass('off');
     // TODO: why?
     // initDevice();
   }

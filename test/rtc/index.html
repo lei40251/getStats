@@ -163,10 +163,19 @@
       <div class="normal video-container">
         <div class="remote">
           <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
+          <!-- <span class="mic_btn"> <i class="material-icons mic-on">mic</i></span> -->
           <p class="linkman-title">我</p>
         </div>
         <div class="local">
           <video autoplay playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5" id="remoteVideo"></video>
+          <button data-target="remoteControlMic" class="btn modal-trigger mic_btn">
+            <i class="material-icons mic_switch mic-on">mic</i>
+            <i class="material-icons mic-off">mic_off</i>
+          </button>
+
+          <button data-target="remoteControlMic" class="btn modal-trigger waves-effect waves-light indigo darken-1 video_btn">
+            <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
+          </button>
           <p id="caller" class="linkman-title caller"></p>
         </div>
       </div>
@@ -220,11 +229,17 @@
           <button id="hangup" class="btn-floating waves-effect waves-light red"><i class="material-icons">call_end</i></button>
           <p>挂机</p>
         </div>
-        <div>
+        <div class="remoteControl">
           <button id="toggle-camera" class="btn-floating waves-effect waves-light indigo darken-1">
             <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
           </button>
           <p>开关摄像头</p>
+        </div>
+        <div>
+          <button id="window" class="btn-floating modal-trigger waves-effect waves-light teal">
+            <i class="material-icons vol-off">featured_video</i>
+          </button>
+          <p>切换窗口</p>
         </div>
         <div>
           <button id="featured" class="btn-floating modal-trigger waves-effect waves-light teal">
@@ -232,7 +247,7 @@
           </button>
           <p>分享桌面</p>
         </div>
-        <div>
+        <div class="remoteControl">
           <button id="toggle-microphone" class="btn-floating btn-flat waves-effect waves-light indigo darken-1">
             <i class="material-icons mic-on">mic</i>
             <i class="material-icons mic-off">mic_off</i>
@@ -273,6 +288,15 @@
           <p>当前您的浏览器不支持H5 WebRTC实时音视频通信，Android、Windows和macOS系统建议使用Chrome浏览器，iOS建议使用Safari浏览器</p>
         </div>
       </div>
+
+      <div id="remoteControlMic" class="modal">
+        <div class="modal-content" style="text-align: center;">
+          <a id="setRemoteVideo" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方摄像头</a><br>
+          <a id="setRemoteMic" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方麦克风</a><br>
+          <a id="setRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">仅远程控制</a><br>
+          <a id="cancelRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">取消仅远程控制</a>
+        </div>
+      </div>
     </span>
     <script src="./js/jquery-3.3.1.min.js"></script>
     <script src="./js/adapter.min.js"></script>
@@ -280,6 +304,10 @@
     <script src="./js/detect.min.js"></script>
     <script src="./js/materialize.min.js"></script>
     <script>
+      M.Modal.init(document.querySelectorAll('#remoteControlMic'), {
+        dismissible: true,
+        opacity: 0.3,
+      });
       M.Modal.init(document.querySelectorAll('#noServiceModal'), {
         dismissible: false,
         opacity: 1,
