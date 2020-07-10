@@ -84,6 +84,35 @@
     );
   }
 
+  // 麦克风音量检测
+  function micDetect(stream, cb) {
+    const audioContext = new AudioContext();
+    // 将麦克风的声音输入这个对象
+    let mediaStreamSource = audioContext.createMediaStreamSource(stream);
+    // 创建一个音频分析对象，采样的缓冲区大小为4096，输入和输出都是单声道
+    let scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+    // 将该分析对象与麦克风音频进行连接
+    mediaStreamSource.connect(scriptProcessor);
+    // 此举无甚效果，仅仅是因为解决 Chrome 自身的 bug
+    scriptProcessor.connect(audioContext.destination);
+    // 开始处理音频
+    scriptProcessor.onaudioprocess = (e) => {
+      // 获得缓冲区的输入音频，转换为包含了PCM通道数据的32位浮点数组
+      const buffer = e.inputBuffer.getChannelData(0);
+      // 获取缓冲区中最大的音量值
+      const maxVal = Math.max(...buffer);
+      // 显示音量值
+      const mv = Math.round(maxVal * 100);
+      if (cb) {
+        if (mv > 10) {
+          cb(mv);
+        } else {
+          cb(10);
+        }
+      }
+    };
+  }
+
   /**
    * 格式化秒为 时分秒格式
    *
@@ -167,6 +196,9 @@
       _remoteStream.addTrack(receiver.track);
     });
     if (_localStream) {
+      micDetect(_localStream, (mv) => {
+        $('.volStatus').width(mv + '%');
+      });
       document.querySelector('#localVideo').srcObject = _localStream;
     }
     if (_remoteStream) {
@@ -640,10 +672,7 @@
     this.session = this.ua.call('sip:' + linkman + '@' + this.domain, {
       extraHeaders: ['X-Token: 2c8a1be510764ad222ebcc4ffd0f9775'],
       mediaConstraints: {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true
-        },
+        audio: true,
         video: true,
       },
       pcConfig: handleGetQuery('transport')
@@ -663,7 +692,20 @@
   };
 
   WebRTC.prototype.answer = function () {
-    _incomingSession.answer();
+    _incomingSession.answer({
+      pcConfig: handleGetQuery('transport')
+        ? {
+            iceServers: [
+              {
+                urls: urls[handleGetQuery('transport')],
+                username: 'user',
+                credential: 'password',
+              },
+            ],
+            iceTransportPolicy: 'relay',
+          }
+        : {},
+    });
   };
 
   WebRTC.prototype.cancel = function () {
@@ -759,6 +801,9 @@
 
     stream &&
       stream.then((s) => {
+        micDetect(s, (mv) => {
+          $('.volStatus').width(mv + '%');
+        });
         document.querySelector('#localVideo').srcObject = s;
       });
   };

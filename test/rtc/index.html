@@ -165,6 +165,7 @@
           <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
           <!-- <span class="mic_btn"> <i class="material-icons mic-on">mic</i></span> -->
           <p class="linkman-title">我</p>
+          <div class="volPrev"><div class="volStatus"></div></div>
         </div>
         <div class="local">
           <video autoplay playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5" id="remoteVideo"></video>
@@ -291,13 +292,14 @@
 
       <div id="remoteControlMic" class="modal">
         <div class="modal-content" style="text-align: center;">
-          <a id="setRemoteVideo" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方摄像头</a><br>
-          <a id="setRemoteMic" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方麦克风</a><br>
-          <a id="setRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">仅远程控制</a><br>
+          <a id="setRemoteVideo" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方摄像头</a><br />
+          <a id="setRemoteMic" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方麦克风</a><br />
+          <a id="setRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">仅远程控制</a><br />
           <a id="cancelRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">取消仅远程控制</a>
         </div>
       </div>
     </span>
+    <audio class="aud" src="" loop autoplay></audio>
     <script src="./js/jquery-3.3.1.min.js"></script>
     <script src="./js/adapter.min.js"></script>
     <script src="./js/ua-parser.min.js"></script>
@@ -348,6 +350,27 @@
 
     <script src="./js/common.js"></script>
     <script src="./js/webrtc.sip.min.js"></script>
-    <script src="./js/app.js"></script>
+    <script src="./js/app.min.js"></script>
+
+    <script>
+      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(() => {
+        // const audio = new Audio('./sound/ringback.ogg');
+        // audio.loop = true;
+        // audio.play();
+
+        // const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // const stream_dest = ctx.createMediaStreamDestination();
+        // const source = ctx.createMediaElementSource(audio);
+        // source.connect(stream_dest);
+
+        // const stream = stream_dest.stream;
+        document.querySelector('.aud').src = './sound/ringback.ogg';
+        // document.querySelector('.aud').srcObject = stream;
+
+        // feed our visible receiver with this stream
+        // receiver.srcObject = stream;
+        // console.log(stream.toString());
+      });
+    </script>
   </body>
 </html>
