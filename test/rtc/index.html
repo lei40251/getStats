@@ -351,26 +351,5 @@
     <script src="./js/common.js"></script>
     <script src="./js/webrtc.sip.min.js"></script>
     <script src="./js/app.min.js"></script>
-
-    <script>
-      navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(() => {
-        // const audio = new Audio('./sound/ringback.ogg');
-        // audio.loop = true;
-        // audio.play();
-
-        // const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        // const stream_dest = ctx.createMediaStreamDestination();
-        // const source = ctx.createMediaElementSource(audio);
-        // source.connect(stream_dest);
-
-        // const stream = stream_dest.stream;
-        document.querySelector('.aud').src = './sound/ringback.ogg';
-        // document.querySelector('.aud').srcObject = stream;
-
-        // feed our visible receiver with this stream
-        // receiver.srcObject = stream;
-        // console.log(stream.toString());
-      });
-    </script>
   </body>
 </html>
