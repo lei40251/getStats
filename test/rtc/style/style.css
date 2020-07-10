@@ -99,7 +99,8 @@ body {
   /* max-height: 736px; */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   margin: 0 auto;
   position: relative;
   box-shadow: 1px 0 5px rgba(0, 0, 0, 0.2);
@@ -223,6 +224,7 @@ body {
 .session-page .action > div {
   text-align: center;
   font-size: 12px;
+  margin: 0 20px;
 }
 
 .action p {

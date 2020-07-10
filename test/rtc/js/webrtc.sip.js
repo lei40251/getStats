@@ -21,98 +21,6 @@
   var timeSession = 0;
   var sessionTimer;
 
-  var callerTotalFlag = false;
-  // RTCPeerConnection stats
-  function _getPeerStats(peer) {
-    var ownToastFlag = false;
-    callStats(
-      peer,
-      function (result) {
-        if (
-          Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 5 ||
-          Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 5
-        ) {
-          if (!ownToastFlag) {
-            ownToastFlag = true;
-            M.toast({
-              html: '网络不稳定',
-              completeCallback: function () {
-                setTimeout(function () {
-                  ownToastFlag = false;
-                }, 27000);
-              },
-            });
-          }
-          // _session.sendInfo('text/plain', 'quality');
-        } else if (
-          Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10 > 10 ||
-          Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10 > 10
-        ) {
-          if (!ownToastFlag) {
-            ownToastFlag = true;
-            M.toast({
-              html: '您的网络很差',
-              completeCallback: function () {
-                setTimeout(function () {
-                  ownToastFlag = false;
-                }, 27000);
-              },
-            });
-          }
-          _session.sendInfo('text/plain', 'quality');
-        }
-        var debug = `
-          <p>upload: <i>${Math.floor(result.bandwidth.uploadSpeed / 1024)} KBps</i></p>
-          <p>download: <i>${Math.floor(result.bandwidth.downloadSpeed / 1024)} KBps</i></p>
-          <p>resolutionUp: <i>${result.video.send.width} x ${result.video.send.height}</i></p>
-          <p>resolutionDn: <i>${result.video.recv.width} x ${result.video.recv.height}</i></p>
-          <p>send audio jitter: <i>${Math.floor(result.audio.send.jitter * 100) / 10}ms</i></p>
-          <p>send audio loss: <i>${Math.floor(result.calculation.audioSendPacketLoss * 1000) / 10}%</i></p>
-          <p>send video jitter: <i>${Math.floor(result.video.send.jitter * 100) / 10}ms</i></p>
-          <p>send video loss: <i>${Math.floor(result.calculation.videoSendPacketLoss * 1000) / 10}%</i></p>
-
-          <p>recv audio jitter: <i>${Math.floor(result.audio.recv.jitter * 100) / 10}ms</i></p>
-          <p>recv audio loss: <i>${Math.floor(result.calculation.audioRecvPacketLoss * 1000) / 10}%</i></p>
-          <p>recv video loss: <i>${Math.floor(result.calculation.videoRecvPacketLoss * 1000) / 10}%</i></p>
-          <p>quality reason: <i>${result.video.send.qualityLimitationReason}</i></p>
-          <p>send fps: <i>${result.calculation.sendFPS}</i></p>
-          <p>recv fps: <i>${result.calculation.recvFPS}</i></p>
-        `;
-        document.querySelector('#debug').innerHTML = debug;
-      },
-      5,
-    );
-  }
-
-  // 麦克风音量检测
-  function micDetect(stream, cb) {
-    const audioContext = new AudioContext();
-    // 将麦克风的声音输入这个对象
-    let mediaStreamSource = audioContext.createMediaStreamSource(stream);
-    // 创建一个音频分析对象，采样的缓冲区大小为4096，输入和输出都是单声道
-    let scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
-    // 将该分析对象与麦克风音频进行连接
-    mediaStreamSource.connect(scriptProcessor);
-    // 此举无甚效果，仅仅是因为解决 Chrome 自身的 bug
-    scriptProcessor.connect(audioContext.destination);
-    // 开始处理音频
-    scriptProcessor.onaudioprocess = (e) => {
-      // 获得缓冲区的输入音频，转换为包含了PCM通道数据的32位浮点数组
-      const buffer = e.inputBuffer.getChannelData(0);
-      // 获取缓冲区中最大的音量值
-      const maxVal = Math.max(...buffer);
-      // 显示音量值
-      const mv = Math.round(maxVal * 100);
-      if (cb) {
-        if (mv > 10) {
-          cb(mv);
-        } else {
-          cb(10);
-        }
-      }
-    };
-  }
-
   /**
    * 格式化秒为 时分秒格式
    *
@@ -155,17 +63,12 @@
 
   // remove stream
   function _stopStream() {
-    var localSrcObject = document.querySelector('#localVideo').srcObject;
-    var remoteSrcObject = document.querySelector('#remoteVideo').srcObject;
+    var remoteSrcObject = document.querySelector('#remoteAudio').srcObject;
     if (_remoteStream) {
       _remoteStream.getTracks().forEach((track) => track.stop());
     }
     if (_localStream) {
       _localStream.getTracks().forEach((track) => track.stop());
-    }
-    if (localSrcObject) {
-      localSrcObject.getTracks().forEach((track) => track.stop());
-      localSrcObject = null;
     }
     if (remoteSrcObject) {
       remoteSrcObject.getTracks().forEach((track) => track.stop());
@@ -187,26 +90,16 @@
   // after accepted
   function _afterAccept(session) {
     _PeerConnection = session.connection;
-    _localStream = new MediaStream();
-    _PeerConnection.getSenders().forEach(function (receiver) {
-      _localStream.addTrack(receiver.track);
-    });
     _remoteStream = new MediaStream();
     _PeerConnection.getReceivers().forEach(function (receiver) {
       _remoteStream.addTrack(receiver.track);
     });
-    if (_localStream) {
-      micDetect(_localStream, (mv) => {
-        $('.volStatus').width(mv + '%');
-      });
-      document.querySelector('#localVideo').srcObject = _localStream;
-    }
     if (_remoteStream) {
-      document.querySelector('#remoteVideo').srcObject = _remoteStream;
+      document.querySelector('#remoteAudio').srcObject = _remoteStream;
     }
     // addstream changeCam
     _PeerConnection.addEventListener('addstream', function (e) {
-      document.querySelector('#remoteVideo').srcObject = e.stream;
+      document.querySelector('#remoteAudio').srcObject = e.stream;
     });
 
     $('.session-timer').html('');
@@ -218,94 +111,6 @@
     }, 1000);
 
     COMMON.changePage('session');
-    _getPeerStats(_PeerConnection);
-  }
-
-  function testUpdate(test) {
-    if (!test) return;
-    const senders = _PeerConnection.getSenders();
-
-    var maxBitrate = test.speed;
-    var priority = test.priority;
-    var constraints = test.constraints;
-    var maxFramerate = test.constraints.frameRate;
-
-    senders.forEach((sender) => {
-      const parameters = sender.getParameters();
-      if (!parameters.encodings) {
-        parameters.encodings = [{}];
-      }
-
-      sender.track.applyConstraints(constraints);
-
-      if (sender.track.kind == 'video') {
-        parameters.encodings[0].maxBitrate = maxBitrate;
-        parameters.encodings[0].maxFramerate = maxFramerate;
-        parameters.encodings[0].networkPriority = priority;
-        parameters.encodings[0].priority = priority;
-      } else if (sender.track.kind == 'audio') {
-        parameters.encodings[0].maxBitrate = maxBitrate / 2;
-      }
-
-      sender.setParameters(parameters).catch((e) => console.error(e));
-      console.log(sender.getParameters());
-    });
-  }
-
-  function updateUpBitrate(definition) {
-    if (definition == '请选择') return;
-    const senders = _PeerConnection.getSenders();
-    const vBandwidth = 1024e3;
-
-    var networkPriority = 'high';
-    var maxBitrate = vBandwidth;
-
-    var constraints = {
-      low: { frameRate: { min: 15, max: 25 }, width: 320, aspectRatio: 1.3333333 },
-      medium: { frameRate: { min: 15, max: 25 }, width: 640, aspectRatio: 1.33333333 },
-      high: { frameRate: { min: 15, max: 25 }, width: 1280, aspectRatio: 1.77777777 },
-    };
-
-    switch (definition) {
-      case 'low':
-        maxBitrate = vBandwidth / 2;
-        networkPriority = 'low';
-        constraints = constraints.low;
-        break;
-      case 'medium':
-        maxBitrate = vBandwidth;
-        networkPriority = 'high';
-        constraints = constraints.medium;
-        break;
-      case 'high':
-        maxBitrate = vBandwidth * 2;
-        networkPriority = 'high';
-        constraints = constraints.high;
-        break;
-      default:
-        break;
-    }
-
-    senders.forEach((sender) => {
-      const parameters = sender.getParameters();
-      if (!parameters.encodings) {
-        parameters.encodings = [{}];
-      }
-
-      sender.track.applyConstraints(constraints);
-
-      if (sender.track.kind == 'video') {
-        parameters.encodings[0].maxBitrate = maxBitrate;
-        parameters.encodings[0].maxFramerate = 20;
-        parameters.encodings[0].networkPriority = networkPriority;
-        parameters.encodings[0].priority = networkPriority;
-      } else if (sender.track.kind == 'audio') {
-        parameters.encodings[0].maxBitrate = vBandwidth / 2;
-      }
-
-      sender.setParameters(parameters).catch((e) => console.error(e));
-      console.log(sender.getParameters());
-    });
   }
 
   // UA debug information
@@ -403,37 +208,9 @@
         document.querySelector('#ringback').play();
       } else {
         document.querySelector('#display-name').innerHTML = UAe.request.from.display_name;
-        document.querySelector('#caller').innerHTML = UAe.request.from.display_name;
         COMMON.changePage('incoming');
         document.querySelector('#ringing').play();
       }
-    },
-    sdp: function (e) {
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 goog-remb.*\r\n/, '');
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 transport-cc.*\r\n/, '');
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 ccm fir.*\r\n/, '');
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack.*\r\n/, '');
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack pli.*\r\n/, '');
-      // if ($('.gr')[0].checked == false) {
-      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 goog-remb.*\r\n/, '');
-      // }
-      // if ($('.tc')[0].checked == false) {
-      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 transport-cc.*\r\n/, '');
-      // }
-      // if ($('.ccmf')[0].checked == false) {
-      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 ccm fir.*\r\n/, '');
-      // }
-      // if ($('.nc')[0].checked == false) {
-      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack.*\r\n/, '');
-      // }
-      // if ($('.ncp')[0].checked == false) {
-      //   e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack pli.*\r\n/, '');
-      // }
-      // a=rtcp-fb:102 goog-remb
-      // a=rtcp-fb:102 transport-cc
-      // a=rtcp-fb:102 ccm fir
-      // a=rtcp-fb:102 nack
-      // a=rtcp-fb:102 nack pli
     },
     failed: function (e, session, UAe) {
       _session = null;
@@ -540,65 +317,6 @@
         html: '获取媒体设备失败，请检查权限',
       });
     },
-    newInfo: function (e) {
-      if (e.originator == 'remote') {
-        switch (e.request.body) {
-          case 'setRemoteControl':
-            $('.remoteControl').hide();
-            break;
-          case 'cancelRemoteControl':
-            $('.remoteControl').show();
-            break;
-          case 'setMic':
-            document.querySelector('#toggle-microphone').click();
-            break;
-          case 'setVideo':
-            document.querySelector('#toggle-camera').click();
-            break;
-          case 'closeMic':
-            $('.mic_btn').addClass('off');
-            // M.toast({
-            //   html: '对方已关闭麦克风',
-            // });
-            break;
-          case 'openMic':
-            $('.mic_btn').removeClass('off');
-            // M.toast({
-            //   html: '对方已开启麦克风',
-            // });
-            break;
-          case 'closeCam':
-            $('.video_btn').addClass('off');
-            // M.toast({
-            //   html: '对方已关闭摄像头',
-            // });
-            break;
-          case 'openCam':
-            $('.video_btn').removeClass('off');
-            // M.toast({
-            //   html: '对方已关闭摄像头',
-            // });
-            break;
-          case 'closeSpeaker':
-            M.toast({
-              html: '对方已关闭扬声器',
-            });
-            break;
-          case 'quality':
-            if (!callerTotalFlag) {
-              callerTotalFlag = true;
-              M.toast({
-                html: '对方的网络很差，会影响通话体验',
-                completeCallback: function () {
-                  callerTotalFlag = false;
-                },
-              });
-            }
-          default:
-            break;
-        }
-      }
-    },
   };
   function _RTCSessionStatusSubject(session, UAe) {
     Object.keys(_rtcSessionEvent).map((event) => {
@@ -607,30 +325,6 @@
       });
     });
   }
-
-  // TODO: what ???
-  function _setVideoStream(stream) {
-    document.querySelector('#localVideo').srcObject = stream;
-    document.querySelector('#localVideo').play();
-  }
-
-  function handleGetQuery(name) {
-    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
-    var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
-
-  var payloads = {
-    h264: ['H264', 'VP9', 'VP8'],
-    vp8: ['VP8', 'H264', 'VP9'],
-    vp9: ['VP9', 'VP8', 'H264'],
-  };
-
-  var urls = {
-    tcp: 'turn:lccsp.zgpajf.com.cn:9005?transport=tcp',
-    udp: 'turn:lccsp.zgpajf.com.cn:10001',
-  };
 
   /* WebRTC Class */
   function WebRTC(options = {}) {
@@ -646,8 +340,6 @@
       contact_uri: 'sip:' + this.account + '@' + this.account + '.invalid;transport=ws',
       password: this.password,
       display_name: this.account,
-      session_timers: false,
-      register: true,
     };
 
     this.ua = new FlyInnWeb.UA(this.configuration);
@@ -671,41 +363,11 @@
 
     this.session = this.ua.call('sip:' + linkman + '@' + this.domain, {
       extraHeaders: ['X-Token: 2c8a1be510764ad222ebcc4ffd0f9775'],
-      mediaConstraints: {
-        audio: true,
-        video: true,
-      },
-      pcConfig: handleGetQuery('transport')
-        ? {
-            iceServers: [
-              {
-                urls: urls[handleGetQuery('transport')],
-                username: 'user',
-                credential: 'password',
-              },
-            ],
-            iceTransportPolicy: 'relay',
-          }
-        : {},
-      videoPayloads: handleGetQuery('payload') ? payloads[handleGetQuery('payload')] : [],
     });
   };
 
   WebRTC.prototype.answer = function () {
-    _incomingSession.answer({
-      pcConfig: handleGetQuery('transport')
-        ? {
-            iceServers: [
-              {
-                urls: urls[handleGetQuery('transport')],
-                username: 'user',
-                credential: 'password',
-              },
-            ],
-            iceTransportPolicy: 'relay',
-          }
-        : {},
-    });
+    _incomingSession.answer();
   };
 
   WebRTC.prototype.cancel = function () {
@@ -720,14 +382,6 @@
     if (_session) {
       _session.terminate();
     }
-  };
-
-  WebRTC.prototype.testUpdate = function (options) {
-    testUpdate(options);
-  };
-
-  WebRTC.prototype.updateConstraints = function (options) {
-    updateUpBitrate(options);
   };
 
   WebRTC.prototype.closeSpeaker = function () {
@@ -759,30 +413,11 @@
     }
   };
 
-  WebRTC.prototype.closeCam = function () {
-    _session.sendInfo('text/plain', 'closeCam');
-    M.toast({
-      html: '您已关闭摄像头',
-    });
-    if (_session) {
-      _session.mute({
-        video: true,
-      });
-    }
-  };
-
-  WebRTC.prototype.openCam = function () {
-    _session.sendInfo('text/plain', 'openCam');
-    if (_session) {
-      _session.unmute({
-        video: true,
-      });
-    }
-  };
-
   WebRTC.prototype.sendDTMF = function (message) {
     if (_session) {
-      _session.sendDTMF(message);
+      _session.sendDTMF(message, {
+        transportType: 'RFC2833',
+      });
     }
   };
 
@@ -793,48 +428,6 @@
       } else {
         _session.sendInfo('application/json', message);
       }
-    }
-  };
-
-  WebRTC.prototype.switchCam = function () {
-    const stream = _session.switchVideoStream();
-
-    stream &&
-      stream.then((s) => {
-        micDetect(s, (mv) => {
-          $('.volStatus').width(mv + '%');
-        });
-        document.querySelector('#localVideo').srcObject = s;
-      });
-  };
-
-  WebRTC.prototype.switchStream = function (stream, type) {
-    var oStream = null;
-    if (type === 'screen') {
-      window.screenStream = stream;
-      oStream = stream;
-    } else {
-      if (stream) {
-        oStream = stream;
-        window.stream = stream;
-      } else {
-        oStream = window.stream;
-      }
-    }
-
-    if (_session && _PeerConnection) {
-      _setVideoStream(oStream);
-
-      if (type === 'screen') {
-        window.stream = _PeerConnection.getLocalStreams()[0];
-      }
-
-      oStream.getVideoTracks().forEach(function (track) {
-        var sender = _PeerConnection.getSenders().find(function (s) {
-          return s.track.kind == track.kind;
-        });
-        sender.replaceTrack(track);
-      });
     }
   };
 

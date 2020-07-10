@@ -52,7 +52,6 @@
               ele.classList.add('hide');
             }
           });
-          document.querySelector('#toggle-camera').classList.remove('close-camera');
           document.querySelector('#toggle-microphone').classList.remove('close-microphone');
           sessionPage.classList.remove('hide');
           break;

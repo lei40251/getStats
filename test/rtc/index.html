@@ -40,16 +40,6 @@
               <input id="password" type="password" name="newPassword" autocomplete="new-password" class="validate" />
               <label for="password">密码</label>
             </div>
-
-            <div class="input-field col s4 m4" style="display: none;">
-              <select class="codes">
-                <option>请选择</option>
-                <option value="vp8">VP8</option>
-                <option value="vp9">VP9</option>
-                <option value="h264">H264</option>
-              </select>
-              <label>编码优先</label>
-            </div>
           </div>
 
           <div class="card-action">
@@ -68,31 +58,7 @@
               <input id="linkman" type="text" required name="linkman" autocomplete="name" class="validate" />
               <label for="linkman">请输入被叫号码</label>
             </div>
-
-            <div class="row fluid" style="display: none;">
-              <label>
-                <input type="checkbox" class="tc" />
-                <span>transport-cc</span>
-              </label>
-              <label>
-                <input type="checkbox" class="nc" />
-                <span>nack</span>
-              </label>
-              <label>
-                <input type="checkbox" class="ncp" />
-                <span>nack pli</span>
-              </label>
-              <label>
-                <input type="checkbox" class="gr" checked />
-                <span>goog-remb</span>
-              </label>
-              <label>
-                <input type="checkbox" class="ccmf" />
-                <span>ccm fir</span>
-              </label>
-            </div>
           </div>
-
           <div class="card-action col row s12">
             <button id="logout" type="button" class="btn white-text btn-flat fluid waves-effect waves-light blue-grey col s3">注销</button>
             <button id="call" type="button" class="btn fluid waves-effect waves-light blue col s8 offset-s1">呼叫</button>
@@ -160,95 +126,14 @@
       </div>
     </div>
     <div id="session-page" class="session-page hPage hide">
-      <div class="normal video-container">
-        <div class="remote">
-          <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
-          <!-- <span class="mic_btn"> <i class="material-icons mic-on">mic</i></span> -->
-          <p class="linkman-title">我</p>
-          <div class="volPrev"><div class="volStatus"></div></div>
-        </div>
-        <div class="local">
-          <video autoplay playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5" id="remoteVideo"></video>
-          <button data-target="remoteControlMic" class="btn modal-trigger mic_btn">
-            <i class="material-icons mic_switch mic-on">mic</i>
-            <i class="material-icons mic-off">mic_off</i>
-          </button>
-
-          <button data-target="remoteControlMic" class="btn modal-trigger waves-effect waves-light indigo darken-1 video_btn">
-            <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
-          </button>
-          <p id="caller" class="linkman-title caller"></p>
-        </div>
-      </div>
-
-      <div class="row fluid" style="display: none;">
-        <div class="input-field col s4 m4">
-          <select class="selectM">
-            <option>请选择</option>
-            <option value="low">240p</option>
-            <option value="medium">480p</option>
-            <option value="high">720p</option>
-          </select>
-          <label>发送分辨率</label>
-        </div>
-      </div>
-
-      <div class="row">
-        <p>通话时间：<span class="session-timer"></span></p>
-        <p>视频参数选择 (供特定场景使用)</p>
-        <div class="input-field col s4">
-          <select class="asp">
-            <option selected value="low">360p</option>
-            <option value="medium">480p</option>
-            <option value="high">720p</option>
-          </select>
-          <label>分辨率</label>
-        </div>
-        <div class="input-field col s4">
-          <select class="fps">
-            <option value="low">10fps</option>
-            <option selected value="medium">15fps</option>
-            <option value="high">20fps</option>
-            <option value="vhigh">25fps</option>
-          </select>
-          <label>帧率</label>
-        </div>
-        <div class="input-field col s4">
-          <select class="speed">
-            <option selected value="low">512k</option>
-            <option value="medium">1M</option>
-            <option value="high">1.5M</option>
-            <option value="vhigh">2M</option>
-          </select>
-          <label>带宽</label>
-        </div>
-        <a class="waves-effect waves-light fluid btn update">确定</a>
-      </div>
+      <audio autoplay id="remoteAudio"></audio>
 
       <div class="action s12 m8 offset-m2 l4 offset-l4">
         <div>
           <button id="hangup" class="btn-floating waves-effect waves-light red"><i class="material-icons">call_end</i></button>
           <p>挂机</p>
         </div>
-        <div class="remoteControl">
-          <button id="toggle-camera" class="btn-floating waves-effect waves-light indigo darken-1">
-            <i class="material-icons video-on">videocam</i><i class="material-icons video-off">videocam_off</i>
-          </button>
-          <p>开关摄像头</p>
-        </div>
         <div>
-          <button id="window" class="btn-floating modal-trigger waves-effect waves-light teal">
-            <i class="material-icons vol-off">featured_video</i>
-          </button>
-          <p>切换窗口</p>
-        </div>
-        <div>
-          <button id="featured" class="btn-floating modal-trigger waves-effect waves-light teal">
-            <i class="material-icons vol-off">screen_share</i>
-          </button>
-          <p>分享桌面</p>
-        </div>
-        <div class="remoteControl">
           <button id="toggle-microphone" class="btn-floating btn-flat waves-effect waves-light indigo darken-1">
             <i class="material-icons mic-on">mic</i>
             <i class="material-icons mic-off">mic_off</i>
@@ -256,18 +141,68 @@
           <p>开关麦克风</p>
         </div>
         <div>
-          <button id="volume" class="btn-floating modal-trigger waves-effect waves-light indigo darken-1">
+          <button id="volume" class="btn-floating waves-effect waves-light indigo darken-1">
             <i class="material-icons vol-on">volume_up</i>
             <i class="material-icons vol-off">volume_off</i>
           </button>
           <p>开关声音</p>
         </div>
         <div>
-          <button id="change-camera" class="btn-floating waves-effect waves-light green"><i class="material-icons">switch_video</i></button>
-          <p>切换摄像头</p>
+          <button id="dialpad" data-target="dialpad-modal" class="btn-floating modal-trigger waves-effect waves-light teal">
+            <i class="material-icons">dialpad</i>
+          </button>
+          <p>DTMF</p>
         </div>
       </div>
       <div id="debug" class="debug col s12 m8 l4 hide"></div>
+      <div id="dialpad-modal" class="modal modal-fixed-footer">
+        <div class="modal-content">
+          <div id="DTMF" class="DTMF row" style="margin-bottom: 0;">
+            <div class="col s3">
+              <button data-value="1" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">1</button>
+            </div>
+            <div class="col s3">
+              <button data-value="2" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">2</button>
+            </div>
+            <div class="col s3">
+              <button data-value="3" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">3</button>
+            </div>
+
+            <div class="col s3">
+              <button data-value="4" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">4</button>
+            </div>
+            <div class="col s3">
+              <button data-value="5" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">5</button>
+            </div>
+            <div class="col s3">
+              <button data-value="6" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">6</button>
+            </div>
+
+            <div class="col s3">
+              <button data-value="7" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">7</button>
+            </div>
+            <div class="col s3">
+              <button data-value="8" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">8</button>
+            </div>
+            <div class="col s3">
+              <button data-value="9" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">9</button>
+            </div>
+
+            <div class="col s3">
+              <button data-value="*" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">*</button>
+            </div>
+            <div class="col s3">
+              <button data-value="0" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">0</button>
+            </div>
+            <div class="col s3">
+              <button data-value="#" class="waves-effect waves-light btn-floating btn-flat teal white-text btn-large">#</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-close waves-effect waves-green btn-flat">关闭</button>
+        </div>
+      </div>
     </div>
     <div id="incoming-page" class="calling-page hPage hide">
       <div class="animate">
@@ -289,27 +224,13 @@
           <p>当前您的浏览器不支持H5 WebRTC实时音视频通信，Android、Windows和macOS系统建议使用Chrome浏览器，iOS建议使用Safari浏览器</p>
         </div>
       </div>
-
-      <div id="remoteControlMic" class="modal">
-        <div class="modal-content" style="text-align: center;">
-          <a id="setRemoteVideo" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方摄像头</a><br />
-          <a id="setRemoteMic" class="waves-effect waves-light btn-small" style="margin: 10px 0;">开关对方麦克风</a><br />
-          <a id="setRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">仅远程控制</a><br />
-          <a id="cancelRemoteControl" class="waves-effect waves-light btn-small" style="margin: 10px 0;">取消仅远程控制</a>
-        </div>
-      </div>
     </span>
-    <audio class="aud" src="" loop autoplay></audio>
     <script src="./js/jquery-3.3.1.min.js"></script>
     <script src="./js/adapter.min.js"></script>
     <script src="./js/ua-parser.min.js"></script>
     <script src="./js/detect.min.js"></script>
     <script src="./js/materialize.min.js"></script>
     <script>
-      M.Modal.init(document.querySelectorAll('#remoteControlMic'), {
-        dismissible: true,
-        opacity: 0.3,
-      });
       M.Modal.init(document.querySelectorAll('#noServiceModal'), {
         dismissible: false,
         opacity: 1,
@@ -326,20 +247,6 @@
         S90904: 'SCREENSHARE_ERROR',
       };
       if (browserSupport !== true) {
-        // var OS = ua.getOS();
-        // switch (OS) {
-        //   case 'Windows':
-        //   case 'Android':
-        //     $('#browser').html('Chrome');
-        //     break;
-        //   case 'iOS':
-        //   case 'Mac OS':
-        //     $('#browser').html('Safari');
-        //     break;
-        //   default:
-        //     $('#browser').html('Chrome');
-        //     break;
-        // }
         $('#noServiceModal').modal('open');
       }
     </script>
