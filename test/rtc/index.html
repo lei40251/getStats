@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base target="_blank" />
     <title>FlyInn Web</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon " type="images/x-icon" href="./favicon.ico" />
@@ -61,6 +62,7 @@
     </div>
     <div id="main-page" class="container hPage valign-wrapper row hide">
       <div class="row col s12 m8 offset-m2 l6 offset-l3">
+        <div class="down"></div>
         <div class="card col s12">
           <div class="card-content">
             <h4 class="card-title center-align"><span id="registered-user" class="red-text"></span> <small>注册成功</small></h4>
@@ -160,6 +162,8 @@
       </div>
     </div>
     <div id="session-page" class="session-page hPage hide">
+
+      <div class="down"></div>
       <div class="normal video-container">
         <div class="remote">
           <video id="localVideo" autoplay muted playsinline x5-video-player-fullscreen="true" x5-video-player-type="h5"></video>
@@ -301,6 +305,8 @@
     </span>
     <audio class="aud" src="" loop autoplay></audio>
     <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/MediaStreamRecorder.js"></script>
+    <script src="./js/dexie.js"></script>
     <script src="./js/adapter.min.js"></script>
     <script src="./js/ua-parser.min.js"></script>
     <script src="./js/detect.min.js"></script>
@@ -342,14 +348,20 @@
         // }
         $('#noServiceModal').modal('open');
       }
+
+      db = new Dexie('db_record');
+      db.version(1).stores({
+        video_record: '++id,time,sessionId',
+      });
     </script>
-    <script src="./js/flyinn-web-demo.min.js"></script>
+    <script src="./js/flyinn-web-3.5.2.js"></script>
+    <!-- <script src="./js/flyinn-web-demo.min.js"></script> -->
     <script src="./js/callStats.min.js"></script>
     <script src="./js/vconsole.min.js"></script>
     <script src="./js/config.js"></script>
 
     <script src="./js/common.js"></script>
-    <script src="./js/webrtc.sip.min.js"></script>
+    <script src="./js/webrtc.sip.js"></script>
     <script src="./js/app.min.js"></script>
   </body>
 </html>

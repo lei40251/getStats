@@ -2,6 +2,8 @@
   var App = window.App || {};
   var COMMON = window.App.common;
 
+  var originator;
+
   var _ua = null;
   var _session = null;
   var _incomingSession = null;
@@ -191,10 +193,25 @@
     _PeerConnection.getSenders().forEach(function (receiver) {
       _localStream.addTrack(receiver.track);
     });
+    var recordRemoteStream = new MediaStream();
+    var remoteStreams = {};
     _remoteStream = new MediaStream();
+    _rAudio = new MediaStream();
     _PeerConnection.getReceivers().forEach(function (receiver) {
-      _remoteStream.addTrack(receiver.track);
+      // _remoteStream.addTrack(receiver.track);
+      if (receiver.track.kind === 'video') {
+        remoteStreams['video'] = receiver.track;
+        _remoteStream.addTrack(receiver.track);
+      } else if (receiver.track.kind === 'audio') {
+        remoteStreams['audio'] = receiver.track;
+        _remoteStream.addTrack(receiver.track);
+        _rAudio.addTrack(receiver.track);
+      }
     });
+
+    recordRemoteStream.addTrack(remoteStreams.video);
+    recordRemoteStream.addTrack(remoteStreams.audio);
+
     if (_localStream) {
       micDetect(_localStream, (mv) => {
         $('.volStatus').width(mv + '%');
@@ -203,7 +220,36 @@
     }
     if (_remoteStream) {
       document.querySelector('#remoteVideo').srcObject = _remoteStream;
+
+      var audioCtx = new AudioContext();
+      var source = audioCtx.createMediaStreamSource(_rAudio);
+
+      // 创建二阶滤波器
+      var biquadFilter = audioCtx.createBiquadFilter();
+      biquadFilter.type = 'lowshelf';
+      biquadFilter.frequency.value = 1000;
+      biquadFilter.gain.value = 10;
+
+      // 把AudioBufferSourceNode连接到gainNode
+      // gainNode连接到目的地, 所以我们可以播放
+      // 音乐并用鼠标调节音量
+      source.connect(biquadFilter);
+      biquadFilter.connect(audioCtx.destination);
     }
+
+    /* record */
+    if (originator == 'remote') {
+      videos = [_localStream, _remoteStream];
+      recorder = new MultiStreamRecorder(videos, { video: { width: 640, height: 480 } });
+      recorder.mimeType = 'video/x-matroska;codecs=avc1';
+      recorder.ondataavailable = function (blob) {
+        db.video_record.add({ sessionId: 'test005', time: new Date().getTime(), stream: blob }).catch(function (e) {
+          alert('Error: ' + (e.stack || e));
+        });
+      };
+      recorder.start(10000);
+    }
+
     // addstream changeCam
     _PeerConnection.addEventListener('addstream', function (e) {
       document.querySelector('#remoteVideo').srcObject = e.stream;
@@ -372,6 +418,7 @@
       });
     },
     newRTCSession: function (e) {
+      originator = e.originator;
       _tmpSession = e.session;
       if (e.originator === 'remote') {
         if (_session || _incomingSession) {
@@ -409,7 +456,12 @@
       }
     },
     sdp: function (e) {
-      // e.sdp = e.sdp.replace(/a=rtcp-fb:102 goog-remb.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:123 goog-remb.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:123 transport-cc.*\r\n/, '');
+      // e.sdp = e.sdp.replace(/a=rtcp-fb:123 ccm fir.*\r\n/, '');
+      // a=rtcp-fb:123 goog-remb
+      // a=rtcp-fb:123 transport-cc
+      // a=rtcp-fb:123 ccm fir
       // e.sdp = e.sdp.replace(/a=rtcp-fb:102 transport-cc.*\r\n/, '');
       // e.sdp = e.sdp.replace(/a=rtcp-fb:102 ccm fir.*\r\n/, '');
       // e.sdp = e.sdp.replace(/a=rtcp-fb:102 nack.*\r\n/, '');
@@ -675,6 +727,7 @@
         audio: true,
         video: true,
       },
+      video_first_codec: 'vp8',
       pcConfig: handleGetQuery('transport')
         ? {
             iceServers: [
@@ -687,7 +740,6 @@
             iceTransportPolicy: 'relay',
           }
         : {},
-      videoPayloads: handleGetQuery('payload') ? payloads[handleGetQuery('payload')] : [],
     });
   };
 
