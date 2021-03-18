@@ -238,16 +238,19 @@
     }
 
     /* record */
+    const { createFFmpeg } = FFmpeg;
     if (originator == 'remote') {
       videos = [_localStream, _remoteStream];
       recorder = new MultiStreamRecorder(videos, { video: { width: 640, height: 480 } });
-      recorder.mimeType = 'video/x-matroska;codecs=avc1';
+      recorder.mimeType = 'video/webm;codecs=vp9';
       recorder.ondataavailable = function (blob) {
+        var rec = window.URL.createObjectURL(blob);
+        await ffmpeg.run(`-i flame.avi -threads 2 flame.mp4`);
         db.video_record.add({ sessionId: 'test005', time: new Date().getTime(), stream: blob }).catch(function (e) {
           alert('Error: ' + (e.stack || e));
         });
       };
-      recorder.start(10000);
+      recorder.start(5000);
     }
 
     // addstream changeCam
